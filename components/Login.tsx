@@ -27,20 +27,17 @@ const LoginPage: React.FC = () => {
     const getToken = async (data: LogInForm) => {try {
         const url = 'https://staging.forthosewho.com/v2/users/login';
         const body = JSON.stringify({
-            // Your JSON payload here
-            // For example:
             username: data.email,
             password: data.password
         });
         const headers = {
             'Content-Type': 'application/json',
-            // Include any other necessary headers here
         };
     
         const response = await fetch(url, {
-            method: 'POST', // Specify the method
-            headers: headers, // Include headers
-            body: body // Include the body
+            method: 'POST',
+            headers: headers,
+            body: body
         });
     
         if (!response.ok) {
@@ -48,24 +45,18 @@ const LoginPage: React.FC = () => {
         }
     
         const json = await response.json();
-        console.log(json);
+
         await SecureStore.setItemAsync('userId',json.userId);
         await SecureStore.setItemAsync('token',json.token);
 
     } catch (error) {
         console.error(error);
     } finally {
-        console.log('Finally executed.');
-        router.replace('/articles');
-        const token = await SecureStore.getItemAsync('token');
-        console.log("token from the late night boys",token);
+        router.navigate('/articles');
     }
-    
     };
 
     const onSubmit = (data: LogInForm) => {
-        // Simulate form submission
-        console.log('Submitted Data:', data);
         getToken(data);
     };
 
