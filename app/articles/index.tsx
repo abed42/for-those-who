@@ -1,7 +1,8 @@
 import Article from "@/components/Article";
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
-import * as SecureStore from 'expo-secure-store';
+import { SafeAreaView, StyleSheet } from "react-native";
+import { ScrollView } from "react-native-virtualized-view";
+import * as SecureStore from "expo-secure-store";
 
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
@@ -10,8 +11,8 @@ const Articles = () => {
   const [data, setData] = useState<any[]>([]);
 
   const getArticles = async () => {
-    const token = await SecureStore.getItemAsync('token');
-    const userId = await SecureStore.getItemAsync('userId');
+    const token = await SecureStore.getItemAsync("token");
+    const userId = await SecureStore.getItemAsync("userId");
 
     try {
       const response = await fetch(
