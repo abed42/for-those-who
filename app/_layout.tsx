@@ -78,6 +78,12 @@ function RootLayoutNav() {
             headerTitle: (props) => <SvgComponent />,
           }}
         />
+        <Stack.Screen
+          name="articles/index"
+          options={{
+            headerTitle: (props) => <SvgComponent />,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

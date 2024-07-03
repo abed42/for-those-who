@@ -3,6 +3,9 @@ import { TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Link } from 'expo-router';
 import { useForm, Controller, Control } from 'react-hook-form';
+import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
+
 type LogInForm = {
     email: string;
     password: string;
@@ -46,10 +49,16 @@ const LoginPage: React.FC = () => {
     
         const json = await response.json();
         console.log(json);
+        await SecureStore.setItemAsync('userId',json.userId);
+        await SecureStore.setItemAsync('token',json.token);
+
     } catch (error) {
         console.error(error);
     } finally {
         console.log('Finally executed.');
+        router.replace('/articles');
+        const token = await SecureStore.getItemAsync('token');
+        console.log("token from the late night boys",token);
     }
     
     };
@@ -59,6 +68,7 @@ const LoginPage: React.FC = () => {
         console.log('Submitted Data:', data);
         getToken(data);
     };
+
 
     return (
         <View style={styles.container}>

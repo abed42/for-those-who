@@ -1,16 +1,18 @@
 import Article from "@/components/Article";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import * as SecureStore from 'expo-secure-store';
 
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 const Articles = () => {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
-  const token = "d33f1a6621f17e8090f8fb9c1b6b6f01";
-  const userId = "1efd9ff3-1fdb-4ea7-9ce1-bacaadbaed65";
 
   const getArticles = async () => {
+    const token = await SecureStore.getItemAsync('token');
+    const userId = await SecureStore.getItemAsync('userId');
+
     try {
       const response = await fetch(
         `https://staging.forthosewho.com/v2/users/${userId}/articles`,
