@@ -1,29 +1,50 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { Children, useEffect } from "react";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useColorScheme } from "@/components/useColorScheme";
+import { View, Text, Image } from "react-native";
+import Svg, { Circle, Rect, Path } from "react-native-svg";
+
+const SvgComponent = () => {
+  return (
+    <Svg width="250" height="18" viewBox="0 0 250 18" fill="none">
+      <Path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M58.3221 5.10089H54.261V17.3332H48.6894V5.10089H44.6533V0H58.3221V5.10089ZM0.000976562 9.27045e-05V17.3338H5.54756V11.7622H11.391V7.27995H5.54756V4.87814H12.109V9.27045e-05H0.000976562ZM21.7954 11.0692C21.7954 9.88097 21.0034 9.03906 19.7648 9.03906C18.5517 9.03906 17.7588 9.88097 17.7588 11.0692C17.7588 12.2583 18.5517 13.1002 19.7648 13.1002C21.0034 13.1002 21.7954 12.2583 21.7954 11.0692ZM26.6982 11.0688C26.6982 14.957 23.7022 17.6556 19.765 17.6556C15.8528 17.6556 12.8564 14.957 12.8564 11.0688C12.8564 7.15655 15.8528 4.48242 19.765 4.48242C23.7022 4.48242 26.6982 7.15655 26.6982 11.0688ZM36.9754 9.6803V4.48047C35.5145 4.48047 34.0535 5.32237 33.2116 6.75838V4.7773H28.3086V17.3319H33.2116V12.8251C33.2116 11.2402 33.2611 9.06124 36.9754 9.6803ZM72.8824 17.3332V9.48334C72.8824 7.65112 72.0405 4.48183 68.2767 4.48183C66.6424 4.48183 65.5531 5.19983 64.8346 6.06625V0H59.9316V17.3332H64.8346V11.0187C64.8346 10.0284 65.3048 9.28545 66.3946 9.28545C67.5088 9.28545 67.9799 10.0284 67.9799 11.0187V17.3332H72.8824ZM83.4321 11.0692C83.4321 9.88097 82.6401 9.03906 81.4011 9.03906C80.1879 9.03906 79.3955 9.88097 79.3955 11.0692C79.3955 12.2583 80.1879 13.1002 81.4011 13.1002C82.6401 13.1002 83.4321 12.2583 83.4321 11.0692ZM88.3353 11.0688C88.3353 14.957 85.3385 17.6556 81.4013 17.6556C77.4895 17.6556 74.4932 14.957 74.4932 11.0688C74.4932 7.15655 77.4895 4.48242 81.4013 4.48242C85.3385 4.48242 88.3353 7.15655 88.3353 11.0688ZM94.7524 17.6537C98.4409 17.6537 100.844 16.2426 100.844 13.3701C100.844 10.9438 98.937 10.077 95.7672 9.40799L95.5855 9.37284L95.5839 9.37255C94.667 9.19605 94.0344 9.07427 94.0344 8.51661C94.0344 8.07093 94.4542 7.7741 95.1482 7.7741C95.7427 7.7741 96.2129 8.04641 96.3863 8.56608L100.224 7.62524C99.704 5.49574 97.2772 4.48047 95.0978 4.48047C91.904 4.48047 89.3293 5.86745 89.3293 8.66503C89.3293 11.2652 91.038 12.0576 93.5138 12.5782C93.7421 12.6273 93.9631 12.6692 94.1719 12.7087C95.1186 12.8881 95.8162 13.0203 95.8162 13.568C95.8162 13.9892 95.396 14.286 94.653 14.286C93.7117 14.286 93.3159 13.7909 93.1916 13.4192L88.958 14.7322C89.5026 16.9611 92.3256 17.6537 94.7524 17.6537ZM110.378 9.85568C110.13 8.79093 109.511 8.17188 108.347 8.17188C107.308 8.17188 106.639 8.81589 106.366 9.85568H110.378ZM114.91 12.2819H106.392C106.739 13.3471 107.556 13.9662 108.892 13.9662C110.13 13.9662 110.899 13.3966 111.221 12.926L114.464 14.8576C113.498 16.3435 111.517 17.6556 108.892 17.6556C104.361 17.6556 101.588 14.8081 101.588 11.0688C101.588 7.28045 104.41 4.48242 108.249 4.48242C112.161 4.48242 115.405 6.98317 114.91 12.2819ZM142.225 17.3337L147.351 0H141.383L139.18 9.21102L136.703 0H132.815L130.34 9.21102L128.16 0H122.168L127.293 17.3337H132.271L134.772 8.09725L137.248 17.3337H142.225ZM161.418 9.48334V17.3332H156.515V11.0187C156.515 10.0284 156.044 9.28545 154.929 9.28545C153.84 9.28545 153.369 10.0284 153.369 11.0187V17.3332H148.467V0H153.369V6.06625C154.088 5.19983 155.177 4.48183 156.811 4.48183C160.576 4.48183 161.418 7.65112 161.418 9.48334ZM169.94 9.03906C171.178 9.03906 171.971 9.88097 171.971 11.0692C171.971 12.2583 171.178 13.1002 169.94 13.1002C168.726 13.1002 167.934 12.2583 167.934 11.0692C167.934 9.88097 168.726 9.03906 169.94 9.03906ZM169.94 17.6556C173.877 17.6556 176.873 14.957 176.873 11.0688C176.873 7.15655 173.877 4.48242 169.94 4.48242C166.028 4.48242 163.031 7.15655 163.031 11.0688C163.031 14.957 166.028 17.6556 169.94 17.6556Z"
+        fill="black"
+      />
+      <Path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M249.999 17.6543H186.831V0.855469H192.011V12.4745H244.819V0.855469H249.999V17.6543Z"
+        fill="#0029FF"
+      />
+    </Svg>
+  );
+};
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
+} from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SourseSerif4: require("../assets/fonts/SourceSerif4-Bold.ttf"),
     ...FontAwesome.font,
   });
 
@@ -49,10 +70,14 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="index"
+          options={{
+            headerTitle: (props) => <SvgComponent />,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
