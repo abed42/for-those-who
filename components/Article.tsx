@@ -1,6 +1,15 @@
-import React from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Button,
+  Touchable,
+  TouchableOpacity,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
+import * as WebBrowser from "expo-web-browser";
 
 const removeSpecialChars = (text: string) =>
   text.replaceAll("\n", "").replaceAll("\t", "");
@@ -21,18 +30,39 @@ const ArrowSvg = () => {
   );
 };
 export default function Article({ article }: { article: any }) {
+  const [result, setResult] = useState<any>(null);
+
+  const handlePressButtonAsync = async () => {
+    let result = await WebBrowser.openBrowserAsync(article.Article.link);
+    setResult(result);
+  };
   return (
     <View>
       <View style={styles.container}>
-        <Text style={styles.title}>{article.Article.title}</Text>
+        <Text
+          onPress={handlePressButtonAsync}
+          style={styles.title}
+          numberOfLines={4}
+        >
+          {article.Article.title}
+        </Text>
         <Image source={require("../assets/images/testImage.png")} />
       </View>
-      <Text>{removeSpecialChars(article.Article.content)}</Text>
+      <Text numberOfLines={4}>
+        {removeSpecialChars(article.Article.content)}
+      </Text>
       <View style={styles.actions}>
-        <View style={styles.link}>
-          <LinkSvg />
-          <Text style={styles.linkText}>{article.Article.Source?.name}</Text>
-        </View>
+        {article.Article.Source?.name ? (
+          <TouchableOpacity
+            style={styles.link}
+            onPress={handlePressButtonAsync}
+          >
+            <LinkSvg />
+            <Text style={styles.linkText}>{article.Article.Source?.name}</Text>
+          </TouchableOpacity>
+        ) : (
+          <View />
+        )}
         <View style={styles.share}>
           <ArrowSvg />
         </View>

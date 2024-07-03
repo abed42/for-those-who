@@ -1,6 +1,6 @@
 import Article from "@/components/Article";
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native-virtualized-view";
 import * as SecureStore from "expo-secure-store";
 
@@ -24,7 +24,7 @@ const Articles = () => {
         }
       );
       const json = await response.json();
-      setData(json.rows);
+      setData(json.rows); // Append new data to existing data
     } catch (error) {
       console.error(error);
     } finally {
@@ -37,7 +37,7 @@ const Articles = () => {
   }, []);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={styles.layout}>
         <Text style={styles.stories}>Stories for you</Text>
         <Text style={styles.subHead}>Picked based on the clues you shared</Text>
