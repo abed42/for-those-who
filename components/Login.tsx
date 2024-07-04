@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
       email: "",
       password: "",
     },
-  }); // Specify the generic parameter here
+  });
 
   const getToken = async (data: LogInForm) => {
     try {
