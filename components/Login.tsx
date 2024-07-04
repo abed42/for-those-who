@@ -26,20 +26,17 @@ const LoginPage: React.FC = () => {
     try {
       const url = "https://staging.forthosewho.com/v2/users/login";
       const body = JSON.stringify({
-        // Your JSON payload here
-        // For example:
         username: data.email,
         password: data.password,
       });
       const headers = {
         "Content-Type": "application/json",
-        // Include any other necessary headers here
       };
 
       const response = await fetch(url, {
-        method: "POST", // Specify the method
-        headers: headers, // Include headers
-        body: body, // Include the body
+        method: "POST",
+        headers: headers,
+        body: body,
       });
 
       if (!response.ok) {
@@ -57,8 +54,6 @@ const LoginPage: React.FC = () => {
   };
 
   const onSubmit = (data: LogInForm) => {
-    // Simulate form submission
-    console.log("Submitted Data:", data);
     getToken(data);
   };
 
@@ -70,7 +65,7 @@ const LoginPage: React.FC = () => {
         rules={{ required: "username or email required" }}
         render={({ field }) => (
           <>
-            <Text style={styles.label}>Account Name or Email</Text>
+            <Text style={styles.label}>Account name or email</Text>
             <TextInput
               {...field}
               style={styles.input}
@@ -127,10 +122,10 @@ const LoginPage: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     width: "100%",
-
     padding: 24,
+    marginTop: -40,
   },
   input: {
     height: 40,
@@ -139,6 +134,8 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     marginBottom: 10,
     paddingLeft: 10,
+    padding: 12,
+    marginTop: 12,
   },
   label: {
     fontSize: 16,
@@ -147,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: "100%",
     height: 48,
-    marginTop: 10,
+    marginTop: 24,
     backgroundColor: "#0029FF", // Example background color
     padding: 12,
     alignItems: "center",
@@ -156,6 +153,7 @@ const styles = StyleSheet.create({
   forgotPasswordContainer: {
     display: "flex",
     alignItems: "flex-end",
+    marginTop: 12,
   },
   errorText: {
     color: "red",

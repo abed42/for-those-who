@@ -3,6 +3,7 @@ import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
+
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -11,8 +12,7 @@ import { Children, useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { View, Text, Image } from "react-native";
-import Svg, { Circle, Rect, Path } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 
 const SvgComponent = () => {
   return (
@@ -32,6 +32,7 @@ const SvgComponent = () => {
     </Svg>
   );
 };
+
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -75,7 +76,7 @@ function RootLayoutNav() {
         <Stack.Screen
           name="index"
           options={{
-            headerTitle: (props) => <SvgComponent />,
+            header: () => null,
           }}
         />
         <Stack.Screen
