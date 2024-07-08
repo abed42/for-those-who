@@ -1,15 +1,8 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  Button,
-  Touchable,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser";
+import * as Sharing from "expo-sharing";
 
 const removeSpecialChars = (text: string) =>
   text.replaceAll("\n", "").replaceAll("\t", "");
@@ -63,9 +56,12 @@ export default function Article({ article }: { article: any }) {
         ) : (
           <View />
         )}
-        <View style={styles.share}>
+        <TouchableOpacity
+          onPress={() => Sharing.shareAsync(article.Article.link)}
+          style={styles.share}
+        >
           <ArrowSvg />
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
