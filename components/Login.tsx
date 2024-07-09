@@ -9,8 +9,15 @@ type LogInForm = {
   email: string;
   password: string;
 };
+interface LoginPageProps {
+  handleAnimation: () => void;
+  setIsLoading: (isLoading: boolean) => void;
+}
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC<LoginPageProps> = ({
+  handleAnimation,
+  setIsLoading,
+}) => {
   const {
     handleSubmit,
     formState: { errors },
@@ -20,7 +27,7 @@ const LoginPage: React.FC = () => {
       email: "",
       password: "",
     },
-  }); // Specify the generic parameter here
+  });
 
   const getToken = async (data: LogInForm) => {
     try {
@@ -47,13 +54,16 @@ const LoginPage: React.FC = () => {
 
       await SecureStore.setItemAsync("userId", json.userId);
       await SecureStore.setItemAsync("token", json.token);
-      router.replace("/articles");
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
+      router.replace("/articles");
     }
   };
 
   const onSubmit = (data: LogInForm) => {
+    handleAnimation();
     getToken(data);
   };
 
