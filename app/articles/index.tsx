@@ -1,14 +1,15 @@
 import Article from "@/components/Article";
 import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
-import { ScrollView } from "react-native-virtualized-view";
+import { SafeAreaView, StyleSheet } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 const Articles = () => {
+  const PER_PAGE = 10;
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
+  const [offset, setOffset] = useState<number>(0);
 
   const getArticles = async () => {
     const token = await SecureStore.getItemAsync("token");
@@ -16,7 +17,7 @@ const Articles = () => {
 
     try {
       const response = await fetch(
-        `https://staging.forthosewho.com/v2/users/${userId}/articles`,
+        `https://staging.forthosewho.com/v2/users/${userId}/articles?offset=${offset}&limit=${PER_PAGE}`,
         {
           headers: new Headers({
             Authorization: "Bearer " + token,
@@ -24,7 +25,7 @@ const Articles = () => {
         }
       );
       const json = await response.json();
-      setData(json.rows); // Append new data to existing data
+      setData([...data, ...json.rows]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -34,34 +35,47 @@ const Articles = () => {
 
   useEffect(() => {
     getArticles();
-  }, []);
+  }, [offset]);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
-      <View style={styles.layout}>
-        <Text style={styles.stories}>Stories for you</Text>
-        <Text style={styles.subHead}>Picked based on the clues you shared</Text>
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <FlatList
-            data={data}
-            keyExtractor={({ id }) => id}
-            renderItem={({ item }) => (
-              <View>
-                <Article article={item} />
-                <View style={styles.separator}></View>
-              </View>
-            )}
-          />
-        )}
-      </View>
-    </ScrollView>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "white",
+      }}
+    >
+      {isLoading ? (
+        <ActivityIndicator style={styles.footer} />
+      ) : (
+        <FlatList
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <Text style={styles.stories}>Stories for you</Text>
+              <Text style={styles.subHead}>
+                Picked based on the clues you shared
+              </Text>
+            </View>
+          }
+          data={data}
+          keyExtractor={({ ArticleId }) => ArticleId}
+          onEndReached={() => setOffset((offset: number) => offset + PER_PAGE)}
+          onEndReachedThreshold={0.8}
+          ListFooterComponent={<ActivityIndicator />}
+          renderItem={({ item }) => (
+            <View>
+              <Article article={item} />
+              <View style={styles.separator}></View>
+            </View>
+          )}
+        />
+      )}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  layout: {
+  header: {
+    flex: 1,
     paddingLeft: 24,
     paddingRight: 24,
   },
@@ -79,6 +93,9 @@ const styles = StyleSheet.create({
     height: 1,
     width: "100%",
     backgroundColor: "#F9F7F7",
+  },
+  footer: {
+    marginTop: 42,
   },
 });
 
