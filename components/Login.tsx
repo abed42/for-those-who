@@ -10,13 +10,14 @@ type LogInForm = {
   password: string;
 };
 interface LoginPageProps {
-  handleAnimation: () => void; // Ensure this matches the signature of your function
+  handleAnimation: () => void;
   setIsLoading: (isLoading: boolean) => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ handleAnimation, setIsLoading}) => {
-
-
+const LoginPage: React.FC<LoginPageProps> = ({
+  handleAnimation,
+  setIsLoading,
+}) => {
   const {
     handleSubmit,
     formState: { errors },
@@ -26,7 +27,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ handleAnimation, setIsLoading}) =
       email: "",
       password: "",
     },
-  }); // Specify the generic parameter here
+  });
 
   const getToken = async (data: LogInForm) => {
     try {
