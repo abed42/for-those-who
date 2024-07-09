@@ -1,11 +1,11 @@
-import {
-  StyleSheet,Button
-} from 'react-native';
 import Svg, { Path } from "react-native-svg";
 
-import { Text, View, } from '@/components/Themed';
-import LoginPage from '@/components/Login';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, ActivityIndicator, Keyboard } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+import LoginPage from '@/components/Login';
+import { Text, } from '@/components/Themed';
+import { KeyboardAvoidingView } from "react-native";
 
 const Logo = ()=> {
 
@@ -17,49 +17,78 @@ const Logo = ()=> {
     
   )
 }
-export default function TabOneScreen() {
-  const padding = useSharedValue<number>(100);
+const TabOneScreen = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const height = useSharedValue<number>(400);
+
+  const [keyboardStatus, setKeyboardStatus] = useState('');
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus('Keyboard Shown');
+      if (!isLoading) {
+        height.value = withSpring(280)
+        console.log('Keyboard Shown');
+      } 
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus('Keyboard Hidden');
+      if (!isLoading) {
+      height.value = withSpring(400)
+      console.log('Keyboard Hidden');
+      }
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [isLoading, keyboardStatus]);
 
   const handlePress = () => {
-    padding.value = withSpring(padding.value + 50);
+    setIsLoading(true);
+    Keyboard.dismiss();
+    height.value = withSpring(1200);
   };
 
+
   return (
-    <View style={styles.container}>
-      <Animated.View style={{ ...styles.box, padding }} >
-        <Logo/>
+    <KeyboardAvoidingView style={styles.container} >
+      <Animated.View style={{...styles.box, height}} >
+        <Logo />
+        {isLoading && <ActivityIndicator size={100} color="white" style={styles.loader}/>}
+        {isLoading && <Text style={styles.loadingText}>Loading log in...</Text>}
       </Animated.View>
-      < LoginPage />
-    </View>
+      <LoginPage handleAnimation={handlePress} setIsLoading={setIsLoading} />
+    </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFF',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  box: {
-    // position: 'relative',
-    height: '40%',
+    box: {
     width: '100%',
     marginTop: -20,
     backgroundColor: '#0029FF',
     borderRadius: 40,
     marginVertical: 64,
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 120,
+    padding:'auto',
+  },
+  loader: {
+    marginTop: 80,
+  },
+  loadingText: {
+    color: 'white',
+    marginTop: 20,
   },
 });
+
+export default TabOneScreen;
