@@ -30,7 +30,7 @@ export default function Article({ article }: { article: any }) {
     setResult(result);
   };
   return (
-    <View>
+    <View style={styles.article}>
       <View style={styles.container}>
         <Text
           onPress={handlePressButtonAsync}
@@ -68,6 +68,10 @@ export default function Article({ article }: { article: any }) {
 }
 
 const styles = StyleSheet.create({
+  article: {
+    paddingLeft: 24,
+    paddingRight: 24,
+  },
   container: {
     display: "flex",
     flexDirection: "row",
