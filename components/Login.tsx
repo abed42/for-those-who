@@ -29,6 +29,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
     },
   });
 
+  const [credentialsError, setCredentialsError] = React.useState<boolean>(false);
+
   const getToken = async (data: LogInForm) => {
     try {
       const url = "https://staging.forthosewho.com/v2/users/login";
@@ -47,23 +49,29 @@ const LoginPage: React.FC<LoginPageProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`${response.status}`);
       }
+       handleAnimation();
 
       const json = await response.json();
 
       await SecureStore.setItemAsync("userId", json.userId);
       await SecureStore.setItemAsync("token", json.token);
+
+      setTimeout(() => {
+        router.replace("/articles");
+        setIsLoading(false);
+      }, 2400);
+
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-      router.replace("/articles");
+      if (error instanceof Error && error.message === '401') {
+        console.error('An error occurred:', error.message);
+        setCredentialsError(true);
+      } 
     }
   };
 
   const onSubmit = (data: LogInForm) => {
-    handleAnimation();
     getToken(data);
   };
 
@@ -111,7 +119,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
       {errors.password && typeof errors.password.message === "string" && (
         <Text style={styles.errorText}>{errors.password.message}</Text>
       )}
-
+      {credentialsError && 
+        <Text style={styles.errorText}>Wrong credentials, please try again!</Text>
+      }
       <TouchableOpacity
         style={styles.forgotPasswordContainer}
         onPress={() => console.log("i forgot my password")}

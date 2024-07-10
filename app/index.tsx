@@ -53,7 +53,7 @@ const TabOneScreen = () => {
     };
   }, [isLoading, keyboardStatus]);
 
-  const handlePress = () => {
+  const handleAnimation = () => {
     setIsLoading(true);
     Keyboard.dismiss();
     height.value = withSpring(1200);
@@ -68,7 +68,7 @@ const TabOneScreen = () => {
         )}
         {isLoading && <Text style={styles.loadingText}>Loading log in...</Text>}
       </Animated.View>
-      <LoginPage handleAnimation={handlePress} setIsLoading={setIsLoading} />
+      <LoginPage handleAnimation={handleAnimation} setIsLoading={setIsLoading} />
     </KeyboardAvoidingView>
   );
 };
