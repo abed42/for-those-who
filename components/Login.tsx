@@ -29,7 +29,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
     },
   });
 
-  const [credentialsError, setCredentialsError] = React.useState<boolean>(false);
+  const [credentialsError, setCredentialsError] =
+    React.useState<boolean>(false);
 
   const getToken = async (data: LogInForm) => {
     try {
@@ -51,7 +52,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
       if (!response.ok) {
         throw new Error(`${response.status}`);
       }
-       handleAnimation();
+      handleAnimation();
 
       const json = await response.json();
 
@@ -59,15 +60,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
       await SecureStore.setItemAsync("token", json.token);
 
       setTimeout(() => {
-        router.replace("/articles");
+        router.replace("/(tabs)/feed");
         setIsLoading(false);
       }, 2400);
-
     } catch (error) {
-      if (error instanceof Error && error.message === '401') {
-        console.error('An error occurred:', error.message);
+      if (error instanceof Error && error.message === "401") {
+        console.error("An error occurred:", error.message);
         setCredentialsError(true);
-      } 
+      }
     }
   };
 
@@ -119,9 +119,11 @@ const LoginPage: React.FC<LoginPageProps> = ({
       {errors.password && typeof errors.password.message === "string" && (
         <Text style={styles.errorText}>{errors.password.message}</Text>
       )}
-      {credentialsError && 
-        <Text style={styles.errorText}>Wrong credentials, please try again!</Text>
-      }
+      {credentialsError && (
+        <Text style={styles.errorText}>
+          Wrong credentials, please try again!
+        </Text>
+      )}
       <TouchableOpacity
         style={styles.forgotPasswordContainer}
         onPress={() => console.log("i forgot my password")}

@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
-const Articles = () => {
+const Feed = () => {
   const PER_PAGE = 10;
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
@@ -99,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Articles;
+export default Feed;
