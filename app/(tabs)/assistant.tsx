@@ -1,8 +1,13 @@
 import Action from "@/components/Action";
+import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
+import { useRef } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 
 const Assistant = () => {
+  const actionSheetRef = useRef<ActionSheetRef>(null);
+
   return (
     <View style={styles.layout}>
       <View style={styles.assistant}>
@@ -20,7 +25,9 @@ const Assistant = () => {
             <Text>How can I assist you today?</Text>
             <View style={{ padding: 8 }} />
             <View style={styles.actions}>
-              <Action>I hate some sources</Action>
+              <Action action={() => actionSheetRef.current?.show()}>
+                I hate some sources
+              </Action>
               <Action>I want to change some of my clues</Action>
               <Action>I want to read more about</Action>
               <Action>I want to share something new about me</Action>
@@ -47,6 +54,9 @@ const Assistant = () => {
           </Clue>
         </View>
       </View>
+      <ActionSheet containerStyle={{ height: "90%" }} ref={actionSheetRef}>
+        <AssistantChat />
+      </ActionSheet>
     </View>
   );
 };
