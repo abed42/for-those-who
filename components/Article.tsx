@@ -39,7 +39,7 @@ export default function Article({ article }: { article: any }) {
         >
           {article.Article.title}
         </Text>
-        <Image source={require("../assets/images/testImage.png")} />
+        <Image source={require("@/assets/images/testImage.png")} />
       </View>
       <Text numberOfLines={4}>
         {removeSpecialChars(article.Article.content)}

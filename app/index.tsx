@@ -36,14 +36,12 @@ const TabOneScreen = () => {
       setKeyboardStatus("Keyboard Shown");
       if (!isLoading) {
         height.value = withSpring(280);
-        console.log("Keyboard Shown");
       }
     });
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setKeyboardStatus("Keyboard Hidden");
       if (!isLoading) {
         height.value = withSpring(400);
-        console.log("Keyboard Hidden");
       }
     });
 
@@ -68,7 +66,10 @@ const TabOneScreen = () => {
         )}
         {isLoading && <Text style={styles.loadingText}>Loading log in...</Text>}
       </Animated.View>
-      <LoginPage handleAnimation={handleAnimation} setIsLoading={setIsLoading} />
+      <LoginPage
+        handleAnimation={handleAnimation}
+        setIsLoading={setIsLoading}
+      />
     </KeyboardAvoidingView>
   );
 };
