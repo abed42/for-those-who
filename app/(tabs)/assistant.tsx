@@ -55,7 +55,7 @@ const Assistant = () => {
         </View>
       </View>
       <ActionSheet containerStyle={{ height: "90%" }} ref={actionSheetRef}>
-        <AssistantChat />
+        <AssistantChat actionSheetRef={actionSheetRef} />
       </ActionSheet>
     </View>
   );

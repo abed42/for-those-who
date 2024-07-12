@@ -4,33 +4,61 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useState } from "react";
+import { RefObject, useState } from "react";
+import ChatMessage from "./ChatMessage";
 
-export default function AssistantChat() {
+type AssistantChatType = {
+  actionSheetRef: RefObject<any>;
+};
+
+export default function AssistantChat({ actionSheetRef }: AssistantChatType) {
   const [text, onChangeText] = useState<any>(null);
 
   return (
     <View style={styles.layout}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Assistant Chat</Text>
-        <TouchableOpacity style={styles.close}>
+        <TouchableOpacity
+          style={styles.close}
+          onPress={() => actionSheetRef.current?.hide()}
+        >
           <AntDesign name="close" size={20} color="#0029FF" />
         </TouchableOpacity>
       </View>
+      <ScrollView style={{ padding: 20 }}>
+        <ChatMessage
+          role={"assistant"}
+          message={
+            "Hey there! I’m your AI assistant, ready to help you get the most relevant content."
+          }
+        />
+        <ChatMessage
+          role={"assistant"}
+          message={"How can I assist you today?"}
+        />
+
+        <ChatMessage
+          role={"user"}
+          message={"I want to change some of my clues"}
+        />
+      </ScrollView>
       <View style={styles.inputWrapper}>
         <TextInput
-          //   onChangeText={onChangeText}
+          onChangeText={onChangeText}
           placeholder="Start typing or end the conversation..."
           placeholderTextColor="#979BB1"
-          //   value={text}
-          //   multiline={true}
-          //   numberOfLines={4}
+          value={text}
           style={styles.input}
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={text ? styles.button : styles.buttonDisabled}
+          disabled={true}
+        >
           <FontAwesome name="send" size={20} color="white" />
         </TouchableOpacity>
       </View>
@@ -74,17 +102,19 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     position: "absolute",
     bottom: 0,
+    backgroundColor: "white",
     padding: 16,
   },
   input: {
     flex: 1,
-    // flexWrap: "wrap",
-    // height: 40,
-    // margin: 12,
-    // borderWidth: 1,
-    // padding: 10,
   },
   button: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#0029FF",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
     padding: 16,
     borderRadius: 8,
     backgroundColor: "#0029FF",
