@@ -1,12 +1,24 @@
 import Action from "@/components/Action";
 import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
 
 const Assistant = () => {
+  const actions = [
+    "I hate some of my clues",
+    "I want to change some of my clues",
+    "I want to read more about",
+    "I want to share something new about me",
+  ];
   const actionSheetRef = useRef<ActionSheetRef>(null);
+  const [action, setAction] = useState<string>("");
+
+  const createAction = (message: string) => {
+    actionSheetRef.current?.show();
+    setAction(message);
+  };
 
   return (
     <View style={styles.layout}>
@@ -25,12 +37,11 @@ const Assistant = () => {
             <Text>How can I assist you today?</Text>
             <View style={{ padding: 8 }} />
             <View style={styles.actions}>
-              <Action action={() => actionSheetRef.current?.show()}>
-                I hate some sources
-              </Action>
-              <Action>I want to change some of my clues</Action>
-              <Action>I want to read more about</Action>
-              <Action>I want to share something new about me</Action>
+              {actions.map((action, index) => (
+                <Action key={index} action={() => createAction(action)}>
+                  {action}
+                </Action>
+              ))}
             </View>
           </View>
         </View>
@@ -55,7 +66,7 @@ const Assistant = () => {
         </View>
       </View>
       <ActionSheet containerStyle={{ height: "90%" }} ref={actionSheetRef}>
-        <AssistantChat actionSheetRef={actionSheetRef} />
+        <AssistantChat action={action} actionSheetRef={actionSheetRef} />
       </ActionSheet>
     </View>
   );

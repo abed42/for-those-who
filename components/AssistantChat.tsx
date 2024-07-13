@@ -4,20 +4,93 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  SafeAreaView,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { RefObject, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
+import fetchWrapper from "@/utils/fetchWrapper";
 
 type AssistantChatType = {
+  action: string;
   actionSheetRef: RefObject<any>;
 };
 
-export default function AssistantChat({ actionSheetRef }: AssistantChatType) {
-  const [text, onChangeText] = useState<any>(null);
+type MessageType = {
+  role: string;
+  message: string;
+  id: string;
+};
+
+export default function AssistantChat({
+  action,
+  actionSheetRef,
+}: AssistantChatType) {
+  const scrollViewRef = useRef<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [threadId, setThreadId] = useState();
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [text, setText] = useState<any>(action ? action : "");
+
+  const sendMessage = async () => {
+    // send temp message
+    setMessages([...messages, { id: "tempId", message: text, role: "user" }]);
+    setText("");
+
+    const body = JSON.stringify({
+      //TODO: implement auth on the route
+      uniqueId: "BM3CDA7ATU1E6",
+      threadId,
+      message: text,
+    });
+
+    try {
+      const result = await fetchWrapper<any>("/assistant/send-message", {
+        method: "POST",
+        body,
+      });
+      setMessages(result);
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initiateAssistant = async () => {
+    const body = JSON.stringify({
+      //TODO: implement auth on the route
+      uniqueId: "BM3CDA7ATU1E6",
+    });
+
+    try {
+      const result = await fetchWrapper<any>("/assistant/initialize-thread", {
+        method: "POST",
+        body,
+      });
+      setMessages(result.messages);
+      setThreadId(result.threadId);
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    initiateAssistant();
+  }, []);
+
+  useEffect(() => {
+    // if an action is set, send it as a message with 1s delay
+    if (action && threadId) {
+      setTimeout(() => {
+        sendMessage();
+      }, 1000);
+    }
+  }, [action, threadId]);
 
   return (
     <View style={styles.layout}>
@@ -30,26 +103,35 @@ export default function AssistantChat({ actionSheetRef }: AssistantChatType) {
           <AntDesign name="close" size={20} color="#0029FF" />
         </TouchableOpacity>
       </View>
-      <ScrollView style={{ padding: 20 }}>
-        <ChatMessage
-          role={"assistant"}
-          message={
-            "Hey there! I’m your AI assistant, ready to help you get the most relevant content."
+      {loading ? (
+        <View style={{ padding: 20 }}>
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: 20,
+            paddingBottom: 92,
+          }}
+          style={styles.messages}
+          ref={scrollViewRef}
+          onContentSizeChange={() =>
+            scrollViewRef.current.scrollToEnd({ animated: true })
           }
-        />
-        <ChatMessage
-          role={"assistant"}
-          message={"How can I assist you today?"}
-        />
+        >
+          {messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              role={message.role}
+              message={message.message}
+            />
+          ))}
+        </ScrollView>
+      )}
 
-        <ChatMessage
-          role={"user"}
-          message={"I want to change some of my clues"}
-        />
-      </ScrollView>
       <View style={styles.inputWrapper}>
         <TextInput
-          onChangeText={onChangeText}
+          onChangeText={setText}
           placeholder="Start typing or end the conversation..."
           placeholderTextColor="#979BB1"
           value={text}
@@ -57,7 +139,8 @@ export default function AssistantChat({ actionSheetRef }: AssistantChatType) {
         />
         <TouchableOpacity
           style={text ? styles.button : styles.buttonDisabled}
-          disabled={true}
+          disabled={text.length === 0}
+          onPress={sendMessage}
         >
           <FontAwesome name="send" size={20} color="white" />
         </TouchableOpacity>
@@ -90,6 +173,10 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
   },
+  messages: {
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
   inputWrapper: {
     display: "flex",
     alignItems: "center",
@@ -104,8 +191,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "white",
     padding: 16,
+    paddingLeft: 0,
   },
   input: {
+    padding: 16,
     flex: 1,
   },
   button: {
