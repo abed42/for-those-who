@@ -4,6 +4,7 @@ import { Text, View } from "@/components/Themed";
 import { useForm, Controller } from "react-hook-form";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import fetchWrapper from "@/utils/fetchWrapper";
 
 type LogInForm = {
   email: string;
@@ -13,6 +14,11 @@ interface LoginPageProps {
   handleAnimation: () => void;
   setIsLoading: (isLoading: boolean) => void;
 }
+
+type LoginResponseType = {
+  userId: string;
+  token: string;
+};
 
 const LoginPage: React.FC<LoginPageProps> = ({
   handleAnimation,
@@ -34,30 +40,19 @@ const LoginPage: React.FC<LoginPageProps> = ({
 
   const getToken = async (data: LogInForm) => {
     try {
-      const url = "https://staging.forthosewho.com/v2/users/login";
       const body = JSON.stringify({
         username: data.email,
         password: data.password,
       });
-      const headers = {
-        "Content-Type": "application/json",
-      };
 
-      const response = await fetch(url, {
+      const response: LoginResponseType = await fetchWrapper("/users/login", {
         method: "POST",
-        headers: headers,
         body: body,
       });
-
-      if (!response.ok) {
-        throw new Error(`${response.status}`);
-      }
       handleAnimation();
 
-      const json = await response.json();
-
-      await SecureStore.setItemAsync("userId", json.userId);
-      await SecureStore.setItemAsync("token", json.token);
+      await SecureStore.setItemAsync("userId", response.userId);
+      await SecureStore.setItemAsync("token", response.token);
 
       setTimeout(() => {
         router.replace("/(tabs)/feed");
@@ -86,6 +81,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Text style={styles.label}>Account name or email</Text>
             <TextInput
               {...field}
+              onSelectionChange={() => setCredentialsError(false)}
               style={styles.input}
               placeholder="name@forthosewho.com"
               onChangeText={field.onChange}
@@ -106,6 +102,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Text style={styles.label}>Password</Text>
             <TextInput
               {...field}
+              onSelectionChange={() => setCredentialsError(false)}
               style={styles.input}
               placeholder="Password"
               onChangeText={field.onChange}

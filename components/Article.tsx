@@ -22,13 +22,15 @@ const ArrowSvg = () => {
     </Svg>
   );
 };
-export default function Article({ article }: { article: any }) {
-  const [result, setResult] = useState<any>(null);
-
+export default function Article({
+  article,
+}: {
+  article: ArticleExtendedModel;
+}) {
   const handlePressButtonAsync = async () => {
-    let result = await WebBrowser.openBrowserAsync(article.Article.link);
-    setResult(result);
+    await WebBrowser.openBrowserAsync(article.Article.link);
   };
+
   return (
     <View style={styles.article}>
       <View style={styles.container}>
