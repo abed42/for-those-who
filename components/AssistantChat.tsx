@@ -24,15 +24,20 @@ type MessageType = {
   id: string;
 };
 
+type InitializeMessageResponseType = {
+  threadId: string;
+  messages: MessageType[];
+};
+
 export default function AssistantChat({
   action,
   actionSheetRef,
 }: AssistantChatType) {
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [threadId, setThreadId] = useState();
+  const [threadId, setThreadId] = useState<string>();
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [text, setText] = useState<any>(action ? action : "");
+  const [text, setText] = useState<string>(action ? action : "");
 
   const sendMessage = async () => {
     // send temp message
@@ -47,12 +52,15 @@ export default function AssistantChat({
     });
 
     try {
-      const result = await fetchWrapper<any>("/assistant/send-message", {
-        method: "POST",
-        body,
-      });
+      const result: MessageType[] = await fetchWrapper(
+        "/assistant/send-message",
+        {
+          method: "POST",
+          body,
+        }
+      );
       setMessages(result);
-    } catch (err: any) {
+    } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
@@ -66,13 +74,16 @@ export default function AssistantChat({
     });
 
     try {
-      const result = await fetchWrapper<any>("/assistant/initialize-thread", {
-        method: "POST",
-        body,
-      });
+      const result: InitializeMessageResponseType = await fetchWrapper(
+        "/assistant/initialize-thread",
+        {
+          method: "POST",
+          body,
+        }
+      );
       setMessages(result.messages);
       setThreadId(result.threadId);
-    } catch (err: any) {
+    } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
@@ -84,12 +95,15 @@ export default function AssistantChat({
   }, []);
 
   useEffect(() => {
+    let timeoutId: number;
     // if an action is set, send it as a message with 1s delay
     if (action && threadId) {
-      setTimeout(() => {
+      timeoutId = window.setTimeout(() => {
         sendMessage();
       }, 1000);
     }
+
+    return () => clearTimeout(timeoutId);
   }, [action, threadId]);
 
   return (

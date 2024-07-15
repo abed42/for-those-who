@@ -15,7 +15,7 @@ export default function ChatMessage({ role, message }: ChatMessageType) {
   );
 }
 
-const styles: any = StyleSheet.create({
+const styles: { [key: string]: Object } = StyleSheet.create({
   layout: {
     marginBottom: 12,
     display: "flex",
