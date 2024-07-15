@@ -9,16 +9,19 @@ import {
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { RefObject, useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import fetchWrapper from "@/utils/fetchWrapper";
+import { uniqueId } from "@/constants/UniqueId";
+import ChatClues from "./ChatClues";
 
 type AssistantChatType = {
   action: string;
   actionSheetRef: RefObject<any>;
 };
 
-type MessageType = {
+export type MessageType = {
   role: string;
   message: string;
   id: string;
@@ -37,7 +40,45 @@ export default function AssistantChat({
   const [loading, setLoading] = useState<boolean>(true);
   const [threadId, setThreadId] = useState<string>();
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [chatClues, setChatClues] = useState<MessageType[]>([]);
   const [text, setText] = useState<string>(action ? action : "");
+
+  const getChatClues = async () => {
+    const body = JSON.stringify({ threadId, uniqueId });
+    try {
+      const response: MessageType[] = await fetchWrapper(
+        "/assistant/retrieve-clues",
+        { method: "POST", body }
+      );
+      console.log(response);
+
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const exitChat = async () => {
+    const clues: any = await getChatClues();
+    console.log(clues.legnth);
+
+    setChatClues(clues);
+
+    setMessages([
+      ...messages,
+      {
+        id: "tempId1",
+        message: "You have chosen to exit the chat",
+        role: "assistant",
+      },
+      {
+        id: "tempId2",
+        message:
+          "Based on our conversation today, we gathered more relevant information for your feed",
+        role: "assistant",
+      },
+    ]);
+  };
 
   const sendMessage = async () => {
     // send temp message
@@ -46,7 +87,7 @@ export default function AssistantChat({
 
     const body = JSON.stringify({
       //TODO: implement auth on the route
-      uniqueId: "BM3CDA7ATU1E6",
+      uniqueId,
       threadId,
       message: text,
     });
@@ -69,8 +110,7 @@ export default function AssistantChat({
 
   const initiateAssistant = async () => {
     const body = JSON.stringify({
-      //TODO: implement auth on the route
-      uniqueId: "BM3CDA7ATU1E6",
+      uniqueId,
     });
 
     try {
@@ -133,13 +173,16 @@ export default function AssistantChat({
             scrollViewRef.current.scrollToEnd({ animated: true })
           }
         >
-          {messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              role={message.role}
-              message={message.message}
-            />
-          ))}
+          <>
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                role={message.role}
+                message={message.message}
+              />
+            ))}
+            {chatClues.length > 0 && <ChatClues clues={chatClues} />}
+          </>
         </ScrollView>
       )}
 
@@ -151,13 +194,19 @@ export default function AssistantChat({
           value={text}
           style={styles.input}
         />
-        <TouchableOpacity
-          style={text ? styles.button : styles.buttonDisabled}
-          disabled={text.length === 0}
-          onPress={sendMessage}
-        >
-          <FontAwesome name="send" size={20} color="white" />
-        </TouchableOpacity>
+        {text ? (
+          <TouchableOpacity
+            style={styles.button}
+            disabled={text.length === 0}
+            onPress={sendMessage}
+          >
+            <FontAwesome name="send" size={20} color="white" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.exitButton} onPress={exitChat}>
+            <Ionicons name="exit" size={20} color="white" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -216,10 +265,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#0029FF",
   },
-  buttonDisabled: {
-    opacity: 0.5,
+  exitButton: {
     padding: 16,
     borderRadius: 8,
-    backgroundColor: "#0029FF",
+    backgroundColor: "#F9325D",
   },
 });
