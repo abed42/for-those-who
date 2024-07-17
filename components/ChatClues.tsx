@@ -36,8 +36,6 @@ export default function ChatClues({
       cluesToBeRemoved: clues.cluesToBeRemoved,
     });
 
-    console.log(body);
-
     try {
       await fetchWrapper("/flows/user-signup", {
         method: "POST",
