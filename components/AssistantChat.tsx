@@ -10,15 +10,16 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
 import ChatClues from "./ChatClues";
+import Animated, { useAnimatedKeyboard,useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 type AssistantChatType = {
   action: string;
-  actionSheetRef: RefObject<any>;
+  setIsModalVisible: (isVisible: boolean) => void;
 };
 
 export type MessageType = {
@@ -34,7 +35,7 @@ type InitializeMessageResponseType = {
 
 export default function AssistantChat({
   action,
-  actionSheetRef,
+  setIsModalVisible,
 }: AssistantChatType) {
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,7 +51,6 @@ export default function AssistantChat({
         "/assistant/retrieve-clues",
         { method: "POST", body }
       );
-      console.log(response);
 
       return response;
     } catch (e) {
@@ -145,6 +145,11 @@ export default function AssistantChat({
 
     return () => clearTimeout(timeoutId);
   }, [action, threadId]);
+  const keyboard = useAnimatedKeyboard();
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    bottom: keyboard.height.value
+  }));
 
   return (
     <View style={styles.layout}>
@@ -152,8 +157,8 @@ export default function AssistantChat({
         <Text style={styles.headerText}>Assistant Chat</Text>
         <TouchableOpacity
           style={styles.close}
-          onPress={() => actionSheetRef.current?.hide()}
-        >
+          onPress={() => setIsModalVisible(false)}
+          >
           <AntDesign name="close" size={20} color="#0029FF" />
         </TouchableOpacity>
       </View>
@@ -186,7 +191,7 @@ export default function AssistantChat({
         </ScrollView>
       )}
 
-      <View style={styles.inputWrapper}>
+      <Animated.View style={[styles.inputWrapper, animatedStyles]}>
         <TextInput
           onChangeText={setText}
           placeholder="Start typing or end the conversation..."
@@ -207,7 +212,7 @@ export default function AssistantChat({
             <Ionicons name="exit" size={20} color="white" />
           </TouchableOpacity>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -216,7 +221,7 @@ const styles = StyleSheet.create({
   layout: {
     height: "100%",
     position: "relative",
-  },
+    },
   header: {
     padding: 12,
     display: "flex",

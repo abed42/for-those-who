@@ -2,21 +2,19 @@ import Action from "@/components/Action";
 import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
 import { useRef, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
-import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
-
+import { View, Text, StyleSheet, Image } from "react-native";import ModalScreen from "@/components/modal";
 const Assistant = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const actions = [
     "I hate some of my clues",
     "I want to change some of my clues",
     "I want to read more about",
     "I want to share something new about me",
   ];
-  const actionSheetRef = useRef<ActionSheetRef>(null);
   const [action, setAction] = useState<string>("");
 
   const createAction = (message: string) => {
-    actionSheetRef.current?.show();
+    setIsModalVisible(true);
     setAction(message);
   };
 
@@ -65,9 +63,9 @@ const Assistant = () => {
           </Clue>
         </View>
       </View>
-      <ActionSheet containerStyle={{ height: "90%" }} ref={actionSheetRef}>
-        <AssistantChat action={action} actionSheetRef={actionSheetRef} />
-      </ActionSheet>
+      <ModalScreen isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
+        <AssistantChat action={action} setIsModalVisible={setIsModalVisible} />
+      </ModalScreen>
     </View>
   );
 };
