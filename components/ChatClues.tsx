@@ -5,7 +5,6 @@ import fetchWrapper from "@/utils/fetchWrapper";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
 import { uniqueId } from "@/constants/UniqueId";
-import { RefObject } from "react";
 
 type CluesType = {
   cluesToBeAdded: { clue: string; id: string }[];
@@ -17,12 +16,12 @@ export default function ChatClues({
   clues,
   setClues,
   threadId,
-  // actionSheetRef,
+  setIsModalVisible,
 }: {
   clues: CluesType;
   setClues: (clues?: CluesType) => void;
   threadId: string;
-  // actionSheetRef: RefObject<any>;
+  setIsModalVisible: (isVisible: boolean) => void;
 }) {
   const updateProfile = async () => {
     const userId = await SecureStore.getItemAsync("userId");
@@ -41,7 +40,7 @@ export default function ChatClues({
         method: "POST",
         body,
       });
-      // actionSheetRef.current?.hide();
+      setIsModalVisible(false);
     } catch (err) {
       console.log(err);
     }

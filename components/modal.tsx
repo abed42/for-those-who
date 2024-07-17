@@ -1,5 +1,9 @@
 import { Modal, View, StyleSheet } from "react-native";
 import { ReactNode } from "react";
+import Animated, {
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 interface ModalScreenProps {
   isVisible: boolean;
   children: ReactNode;
@@ -11,22 +15,25 @@ export default function ModalScreen({
   children,
   onClose,
 }: ModalScreenProps) {
+  const keyboard = useAnimatedKeyboard();
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    bottom: keyboard.height.value,
+    height: 800 - keyboard.height.value,
+  }));
+
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisible}
-    >
-      <View style={styles.modalContent}>
+    <Modal animationType="slide" transparent={true} visible={isVisible}>
+      <Animated.View style={[styles.modalContent, animatedStyles]}>
         {children}
-      </View>
+      </Animated.View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   modalContent: {
-    height: "90%",
+    height: 800,
     width: "100%",
     backgroundColor: "#fff",
     borderTopRightRadius: 18,
@@ -40,8 +47,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 5
-
+    elevation: 5,
   },
   titleContainer: {
     height: "16%",

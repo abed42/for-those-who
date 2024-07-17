@@ -2,7 +2,8 @@ import Action from "@/components/Action";
 import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
 import { useRef, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";import ModalScreen from "@/components/modal";
+import { View, Text, StyleSheet, Image } from "react-native";
+import ModalScreen from "@/components/modal";
 const Assistant = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const actions = [
@@ -63,7 +64,10 @@ const Assistant = () => {
           </Clue>
         </View>
       </View>
-      <ModalScreen isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
+      <ModalScreen
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      >
         <AssistantChat action={action} setIsModalVisible={setIsModalVisible} />
       </ModalScreen>
     </View>
