@@ -17,12 +17,12 @@ export default function ChatClues({
   clues,
   setClues,
   threadId,
-  actionSheetRef,
+  // actionSheetRef,
 }: {
   clues: CluesType;
   setClues: (clues?: CluesType) => void;
   threadId: string;
-  actionSheetRef: RefObject<any>;
+  // actionSheetRef: RefObject<any>;
 }) {
   const updateProfile = async () => {
     const userId = await SecureStore.getItemAsync("userId");
@@ -41,7 +41,7 @@ export default function ChatClues({
         method: "POST",
         body,
       });
-      actionSheetRef.current?.hide();
+      // actionSheetRef.current?.hide();
     } catch (err) {
       console.log(err);
     }
