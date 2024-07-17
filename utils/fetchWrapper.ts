@@ -26,9 +26,12 @@ const fetchWrapper = async <T>(
       // Handle HTTP errors
       throw new Error(`${response.status}`);
     }
-    // Parse and return JSON if the response is OK
-    const data = await response.json();
-    return data;
+
+    // Check for empty response
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+
+    return data as T;
   } catch (error) {
     // Handle fetch errors
     console.error("Fetch error:", error);

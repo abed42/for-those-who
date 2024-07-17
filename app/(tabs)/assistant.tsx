@@ -9,7 +9,7 @@ const Assistant = () => {
   const actions = [
     "I hate some of my clues",
     "I want to change some of my clues",
-    "I want to read more about",
+    "I want to read more about something",
     "I want to share something new about me",
   ];
   const actionSheetRef = useRef<ActionSheetRef>(null);

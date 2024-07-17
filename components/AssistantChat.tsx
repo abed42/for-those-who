@@ -6,6 +6,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -15,6 +16,8 @@ import ChatMessage from "./ChatMessage";
 import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
 import ChatClues from "./ChatClues";
+import * as SecureStore from "expo-secure-store";
+import { Categories } from "@/constants/Categories";
 
 type AssistantChatType = {
   action: string;
@@ -38,31 +41,40 @@ export default function AssistantChat({
 }: AssistantChatType) {
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [threadId, setThreadId] = useState<string>();
+  const [blocked, setBlocked] = useState<boolean>(false);
+  const [threadId, setThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [chatClues, setChatClues] = useState<MessageType[]>([]);
+  const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>(action ? action : "");
 
   const getChatClues = async () => {
-    const body = JSON.stringify({ threadId, uniqueId });
+    setBlocked(true);
+    const body = JSON.stringify({
+      threadId,
+      uniqueId,
+    });
     try {
       const response: MessageType[] = await fetchWrapper(
         "/assistant/retrieve-clues",
         { method: "POST", body }
       );
-      console.log(response);
-
       return response;
     } catch (e) {
       console.log(e);
+    } finally {
+      setBlocked(false);
     }
   };
 
   const exitChat = async () => {
-    const clues: any = await getChatClues();
-    console.log(clues.legnth);
+    Keyboard.dismiss();
 
-    setChatClues(clues);
+    const clues = await getChatClues();
+
+    // clues are saved inside a json string
+    if (clues) {
+      setChatClues(JSON.parse(clues[0].message));
+    }
 
     setMessages([
       ...messages,
@@ -81,6 +93,7 @@ export default function AssistantChat({
   };
 
   const sendMessage = async () => {
+    setBlocked(true);
     // send temp message
     setMessages([...messages, { id: "tempId", message: text, role: "user" }]);
     setText("");
@@ -104,13 +117,19 @@ export default function AssistantChat({
     } catch (err) {
       console.log(err);
     } finally {
+      setBlocked(false);
       setLoading(false);
     }
   };
 
   const initiateAssistant = async () => {
+    setBlocked(true);
+    const userId = await SecureStore.getItemAsync("userId");
+
     const body = JSON.stringify({
+      userId,
       uniqueId,
+      category: Categories.CHANGE_CLUES,
     });
 
     try {
@@ -126,6 +145,7 @@ export default function AssistantChat({
     } catch (err) {
       console.log(err);
     } finally {
+      setBlocked(false);
       setLoading(false);
     }
   };
@@ -140,7 +160,7 @@ export default function AssistantChat({
     if (action && threadId) {
       timeoutId = window.setTimeout(() => {
         sendMessage();
-      }, 1000);
+      }, 500);
     }
 
     return () => clearTimeout(timeoutId);
@@ -181,7 +201,14 @@ export default function AssistantChat({
                 message={message.message}
               />
             ))}
-            {chatClues.length > 0 && <ChatClues clues={chatClues} />}
+            {chatClues && (
+              <ChatClues
+                clues={chatClues}
+                setClues={setChatClues}
+                threadId={threadId}
+                actionSheetRef={actionSheetRef}
+              />
+            )}
           </>
         </ScrollView>
       )}
@@ -196,14 +223,22 @@ export default function AssistantChat({
         />
         {text ? (
           <TouchableOpacity
-            style={styles.button}
-            disabled={text.length === 0}
+            style={
+              text.length === 0 || blocked
+                ? styles.buttonDisabled
+                : styles.button
+            }
+            disabled={text.length === 0 || blocked}
             onPress={sendMessage}
           >
             <FontAwesome name="send" size={20} color="white" />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.exitButton} onPress={exitChat}>
+          <TouchableOpacity
+            style={blocked ? styles.exitButtonDisabled : styles.exitButton}
+            onPress={exitChat}
+            disabled={blocked}
+          >
             <Ionicons name="exit" size={20} color="white" />
           </TouchableOpacity>
         )}
@@ -265,9 +300,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#0029FF",
   },
+  buttonDisabled: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#0029FF",
+    opacity: 0.5,
+  },
   exitButton: {
     padding: 16,
     borderRadius: 8,
     backgroundColor: "#F9325D",
+  },
+  exitButtonDisabled: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#F9325D",
+    opacity: 0.5,
   },
 });
