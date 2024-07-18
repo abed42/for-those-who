@@ -8,7 +8,7 @@ import { uniqueId } from "@/constants/UniqueId";
 
 type CluesType = {
   cluesToBeAdded: { clue: string; id: string }[];
-  cluesToBeRemoved: { clue: string }[];
+  cluesToBeRemoved: { clue: string; id: string }[];
   cluesToRemain: { clue: string; id: string }[];
 };
 

@@ -155,13 +155,13 @@ export default function AssistantChat({
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
-      scrollViewRef.current.scrollToEnd();
+      if (scrollViewRef.current) scrollViewRef.current.scrollToEnd();
     });
 
     return () => {
       showSubscription.remove();
     };
-  }, []);
+  }, [scrollViewRef]);
 
   return (
     <View style={[styles.layout]}>
