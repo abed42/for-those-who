@@ -20,7 +20,6 @@ import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
 
 type AssistantChatType = {
-  action: string;
   setIsModalVisible: (isVisible: boolean) => void;
 };
 
@@ -36,7 +35,6 @@ type InitializeMessageResponseType = {
 };
 
 export default function AssistantChat({
-  action,
   setIsModalVisible,
 }: AssistantChatType) {
   const scrollViewRef = useRef<any>(null);
@@ -45,7 +43,7 @@ export default function AssistantChat({
   const [threadId, setThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
-  const [text, setText] = useState<string>(action ? action : "");
+  const [text, setText] = useState<string>("");
 
   const getChatClues = async () => {
     setBlocked(true);
@@ -154,18 +152,6 @@ export default function AssistantChat({
   useEffect(() => {
     initiateAssistant();
   }, []);
-
-  useEffect(() => {
-    let timeoutId: number;
-    // if an action is set, send it as a message with 1s delay
-    if (action && threadId) {
-      timeoutId = window.setTimeout(() => {
-        sendMessage();
-      }, 500);
-    }
-
-    return () => clearTimeout(timeoutId);
-  }, [action, threadId]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
