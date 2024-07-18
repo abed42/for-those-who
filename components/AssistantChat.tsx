@@ -18,10 +18,6 @@ import { uniqueId } from "@/constants/UniqueId";
 import ChatClues from "./ChatClues";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
-import Animated, {
-  useAnimatedKeyboard,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 
 type AssistantChatType = {
   action: string;
