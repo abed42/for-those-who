@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Share,
+  Alert,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser";
-import * as Sharing from "expo-sharing";
 
 const removeSpecialChars = (text: string) =>
   text.replaceAll("\n", "").replaceAll("\t", "");
@@ -29,6 +36,12 @@ export default function Article({
 }) {
   const handlePressButtonAsync = async () => {
     await WebBrowser.openBrowserAsync(article.Article.link);
+  };
+
+  const handleShare = async () => {
+    await Share.share({
+      message: article.Article.link,
+    });
   };
 
   return (
@@ -58,10 +71,7 @@ export default function Article({
         ) : (
           <View />
         )}
-        <TouchableOpacity
-          onPress={() => Sharing.shareAsync(article.Article.link)}
-          style={styles.share}
-        >
+        <TouchableOpacity onPress={handleShare} style={styles.share}>
           <ArrowSvg />
         </TouchableOpacity>
       </View>
