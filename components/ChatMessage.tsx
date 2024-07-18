@@ -9,7 +9,7 @@ export default function ChatMessage({ role, message }: ChatMessageType) {
   return (
     <View style={styles.layout}>
       <View style={styles[role]}>
-        <Text>{message}</Text>
+        <Text selectable>{message}</Text>
       </View>
     </View>
   );
