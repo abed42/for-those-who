@@ -1,9 +1,12 @@
 import Action from "@/components/Action";
 import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import ModalScreen from "@/components/modal";
+import fetchWrapper from "@/utils/fetchWrapper";
+import * as SecureStore from "expo-secure-store";
+
 const Assistant = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const actions = [
@@ -12,12 +15,33 @@ const Assistant = () => {
     "I want to read more about something",
     "I want to share something new about me",
   ];
-  const [action, setAction] = useState<string>("");
 
-  const createAction = (message: string) => {
-    setIsModalVisible(true);
-    setAction(message);
+  const [user, setUser] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const getUserClues = async () => {
+    const token = await SecureStore.getItemAsync("token");
+    const userId = await SecureStore.getItemAsync("userId");
+
+    try {
+      const response: any = await fetchWrapper(`/entities/users/${userId}`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      setUser(response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const createAction = () => {
+    setIsModalVisible(true);
+  };
+
+  useEffect(() => {
+    getUserClues();
+  }, []);
 
   return (
     <View style={styles.layout}>
@@ -37,7 +61,7 @@ const Assistant = () => {
             <View style={{ padding: 8 }} />
             <View style={styles.actions}>
               {actions.map((action, index) => (
-                <Action key={index} action={() => createAction(action)}>
+                <Action key={index} action={() => createAction()}>
                   {action}
                 </Action>
               ))}
@@ -50,25 +74,17 @@ const Assistant = () => {
         <Text>Here are the clues you've given us</Text>
         <View style={{ padding: 8 }} />
         <View style={styles.clues}>
-          <Clue>
-            At work, I develop artificial intelligence systems for enterprise
-            conversational agents
-          </Clue>
-          <Clue>
-            On the side, I am learning about game development using Rust, with a
-            focus on GPU programming
-          </Clue>
-          <Clue>
-            I  am currently looking into wedding planning for my wedding in
-            Athens, Greece on August 8th
-          </Clue>
+          {user &&
+            user.Descriptors.map(({ clue, id }) => (
+              <Clue key={id}>{clue}</Clue>
+            ))}
         </View>
       </View>
       <ModalScreen
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
       >
-        <AssistantChat action={action} setIsModalVisible={setIsModalVisible} />
+        <AssistantChat setIsModalVisible={setIsModalVisible} />
       </ModalScreen>
     </View>
   );
