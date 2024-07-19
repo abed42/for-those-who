@@ -18,6 +18,7 @@ import { uniqueId } from "@/constants/UniqueId";
 import ChatClues from "./ChatClues";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
+import Spinner from "react-native-loading-spinner-overlay";
 
 type AssistantChatType = {
   setIsModalVisible: (isVisible: boolean) => void;
@@ -44,7 +45,7 @@ export default function AssistantChat({
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>("");
-
+  const [loadingClues, setLoadingClues] = useState<boolean>(false);
   const getChatClues = async () => {
     setBlocked(true);
     const body = JSON.stringify({
@@ -67,12 +68,14 @@ export default function AssistantChat({
 
   const exitChat = async () => {
     Keyboard.dismiss();
+    setLoadingClues(true);
 
     const clues = await getChatClues();
 
     // clues are saved inside a json string
     if (clues) {
       setChatClues(JSON.parse(clues[0].message));
+      setLoadingClues(false);
     }
 
     setMessages([
@@ -166,6 +169,11 @@ export default function AssistantChat({
 
   return (
     <View style={[styles.layout]}>
+      <Spinner
+        visible={loadingClues}
+        textContent={"Preparing your clues..."}
+        textStyle={styles.spinnerTextStyle}
+      />
       <View style={styles.header}>
         <Text style={styles.headerText}>Assistant Chat</Text>
         <TouchableOpacity
@@ -250,6 +258,9 @@ const styles = StyleSheet.create({
   layout: {
     height: "100%",
     position: "relative",
+  },
+  spinnerTextStyle: {
+    color: "#FFF",
   },
   header: {
     padding: 12,
