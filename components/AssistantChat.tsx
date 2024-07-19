@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  ActivityIndicator,
   Keyboard,
 } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -19,7 +18,9 @@ import ChatClues from "./ChatClues";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
 import Spinner from "react-native-loading-spinner-overlay";
-import { v4 as uuid } from "uuid";
+import "react-native-get-random-values";
+import { nanoid } from "nanoid";
+
 type AssistantChatType = {
   setIsModalVisible: (isVisible: boolean) => void;
 };
@@ -82,12 +83,12 @@ export default function AssistantChat({
     setMessages([
       ...messages,
       {
-        id: uuid(),
+        id: nanoid(),
         message: "You have chosen to exit the chat",
         role: "assistant",
       },
       {
-        id: uuid(),
+        id: nanoid(),
         message:
           "Based on our conversation today, we gathered more relevant information for your feed",
         role: "assistant",
