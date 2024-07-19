@@ -19,7 +19,7 @@ import ChatClues from "./ChatClues";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
 import Spinner from "react-native-loading-spinner-overlay";
-
+import { v4 as uuid } from "uuid";
 type AssistantChatType = {
   setIsModalVisible: (isVisible: boolean) => void;
 };
@@ -46,6 +46,7 @@ export default function AssistantChat({
   const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>("");
   const [loadingClues, setLoadingClues] = useState<boolean>(false);
+  const [assistantTyping, setAssistantTyping] = useState<boolean>(false);
   const getChatClues = async () => {
     setBlocked(true);
     const body = JSON.stringify({
@@ -81,12 +82,12 @@ export default function AssistantChat({
     setMessages([
       ...messages,
       {
-        id: "tempId1",
+        id: uuid(),
         message: "You have chosen to exit the chat",
         role: "assistant",
       },
       {
-        id: "tempId2",
+        id: uuid(),
         message:
           "Based on our conversation today, we gathered more relevant information for your feed",
         role: "assistant",
@@ -95,8 +96,9 @@ export default function AssistantChat({
   };
 
   const sendMessage = async () => {
+    setChatClues(undefined); // hide clues component on send message
     setBlocked(true);
-
+    setAssistantTyping(true);
     // send temp message
     setMessages([...messages, { id: "tempId", message: text, role: "user" }]);
     setText("");
@@ -122,6 +124,7 @@ export default function AssistantChat({
     } finally {
       setBlocked(false);
       setLoading(false);
+      setAssistantTyping(false);
     }
   };
 
@@ -169,11 +172,7 @@ export default function AssistantChat({
 
   return (
     <View style={[styles.layout]}>
-      <Spinner
-        visible={loadingClues}
-        textContent={"Preparing your clues..."}
-        textStyle={styles.spinnerTextStyle}
-      />
+      <Spinner visible={loadingClues} color="#0029FF" size={"large"} />
       <View style={styles.header}>
         <Text style={styles.headerText}>Assistant Chat</Text>
         <TouchableOpacity
@@ -185,9 +184,12 @@ export default function AssistantChat({
       </View>
 
       {loading ? (
-        <View style={{ padding: 20 }}>
-          <ActivityIndicator />
-        </View>
+        <Spinner
+          visible={loading}
+          color="#0029FF"
+          size={"large"}
+          overlayColor="transparent"
+        />
       ) : (
         <ScrollView
           contentContainerStyle={{
@@ -208,6 +210,7 @@ export default function AssistantChat({
                 message={message.message}
               />
             ))}
+            {assistantTyping && <Text style={styles.typing}>Typing...</Text>}
             {chatClues && (
               <ChatClues
                 clues={chatClues}
@@ -242,9 +245,13 @@ export default function AssistantChat({
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={blocked ? styles.exitButtonDisabled : styles.exitButton}
+            style={
+              blocked || !!chatClues
+                ? styles.exitButtonDisabled
+                : styles.exitButton
+            }
             onPress={exitChat}
-            disabled={blocked}
+            disabled={blocked || !!chatClues}
           >
             <Ionicons name="exit" size={20} color="white" />
           </TouchableOpacity>
@@ -259,8 +266,10 @@ const styles = StyleSheet.create({
     height: "100%",
     position: "relative",
   },
-  spinnerTextStyle: {
-    color: "#FFF",
+  typing: {
+    padding: 12,
+    color: "gray",
+    fontStyle: "italic",
   },
   header: {
     padding: 12,
