@@ -93,6 +93,7 @@ export default function AssistantChat({
 
   const sendMessage = async () => {
     setBlocked(true);
+
     // send temp message
     setMessages([...messages, { id: "tempId", message: text, role: "user" }]);
     setText("");

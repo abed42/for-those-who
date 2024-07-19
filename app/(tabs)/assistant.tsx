@@ -1,11 +1,20 @@
 import Action from "@/components/Action";
 import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
-import { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import ModalScreen from "@/components/modal";
 import fetchWrapper from "@/utils/fetchWrapper";
 import * as SecureStore from "expo-secure-store";
+import { uniqueId } from "@/constants/UniqueId";
+import { UserModel } from "@/models/user";
 
 const Assistant = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -16,7 +25,7 @@ const Assistant = () => {
     "I want to share something new about me",
   ];
 
-  const [user, setUser] = useState<any>();
+  const [user, setUser] = useState<UserModel>();
   const [loading, setLoading] = useState<boolean>(true);
 
   const getUserClues = async () => {
@@ -24,9 +33,12 @@ const Assistant = () => {
     const userId = await SecureStore.getItemAsync("userId");
 
     try {
-      const response: any = await fetchWrapper(`/entities/users/${userId}`, {
-        headers: { Authorization: "Bearer " + token },
-      });
+      const response: any = await fetchWrapper(
+        `/entities/users/${userId}?uniqueId=${uniqueId}`,
+        {
+          headers: { Authorization: "Bearer " + token },
+        }
+      );
       setUser(response);
     } catch (error) {
       console.error(error);
@@ -44,7 +56,7 @@ const Assistant = () => {
   }, []);
 
   return (
-    <View style={styles.layout}>
+    <ScrollView style={styles.layout} keyboardShouldPersistTaps={"always"}>
       <View style={styles.assistant}>
         <View style={{ display: "flex", flexDirection: "row" }}>
           <Image
@@ -73,12 +85,17 @@ const Assistant = () => {
       <View>
         <Text>Here are the clues you've given us</Text>
         <View style={{ padding: 8 }} />
-        <View style={styles.clues}>
-          {user &&
-            user.Descriptors.map(({ clue, id }) => (
-              <Clue key={id}>{clue}</Clue>
-            ))}
-        </View>
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={styles.clues}>
+            {user &&
+              user.Descriptors.map(({ clue, id }) => (
+                <Clue key={id}>{clue}</Clue>
+              ))}
+          </View>
+        )}
+        <View style={{ padding: 8 }} />
       </View>
       <ModalScreen
         isVisible={isModalVisible}
@@ -86,7 +103,7 @@ const Assistant = () => {
       >
         <AssistantChat setIsModalVisible={setIsModalVisible} />
       </ModalScreen>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -114,6 +131,7 @@ const styles = StyleSheet.create({
   clues: {
     display: "flex",
     gap: 5,
+    paddingBottom: 8,
   },
 });
 
