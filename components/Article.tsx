@@ -7,9 +7,29 @@ import {
   TouchableOpacity,
   Share,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser";
+import * as SecureStore from "expo-secure-store";
+import fetchWrapper from "@/utils/fetchWrapper";
+
+import { uniqueId } from "@/constants/UniqueId";
+import { Categories } from "@/constants/Categories";
+import Action from "./Action";
+import { AntDesign } from "@expo/vector-icons";
+export type MessageType = {
+  role: string;
+  message: string | any;
+  id: string;
+};
+type InitializeMessageResponseType = {
+  threadId: string;
+  messages: MessageType[];
+};
+type ReasoningData = {
+  Reasoning: string[];
+};
 
 const removeSpecialChars = (text: string) =>
   text.replaceAll("\n", "").replaceAll("\t", "");
@@ -29,21 +49,90 @@ const ArrowSvg = () => {
     </Svg>
   );
 };
+
+const LikeSvg = () => {
+  return (
+    <Svg style={styles.shareSvg} viewBox="0 0 512 512">
+      <Path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16l-97.5 0c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8l97.5 0c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32L0 448c0 17.7 14.3 32 32 32l64 0c17.7 0 32-14.3 32-32l0-224c0-17.7-14.3-32-32-32l-64 0z" />
+    </Svg>
+  );
+};
+const DislikeSvg = () => {
+  return (
+    <Svg style={styles.shareSvg} viewBox="0 0 512 512">
+      <Path d="M323.8 477.2c-38.2 10.9-78.1-11.2-89-49.4l-5.7-20c-3.7-13-10.4-25-19.5-35l-51.3-56.4c-8.9-9.8-8.2-25 1.6-33.9s25-8.2 33.9 1.6l51.3 56.4c14.1 15.5 24.4 34 30.1 54.1l5.7 20c3.6 12.7 16.9 20.1 29.7 16.5s20.1-16.9 16.5-29.7l-5.7-20c-5.7-19.9-14.7-38.7-26.6-55.5c-5.2-7.3-5.8-16.9-1.7-24.9s12.3-13 21.3-13L448 288c8.8 0 16-7.2 16-16c0-6.8-4.3-12.7-10.4-15c-7.4-2.8-13-9-14.9-16.7s.1-15.8 5.3-21.7c2.5-2.8 4-6.5 4-10.6c0-7.8-5.6-14.3-13-15.7c-8.2-1.6-15.1-7.3-18-15.2s-1.6-16.7 3.6-23.3c2.1-2.7 3.4-6.1 3.4-9.9c0-6.7-4.2-12.6-10.2-14.9c-11.5-4.5-17.7-16.9-14.4-28.8c.4-1.3 .6-2.8 .6-4.3c0-8.8-7.2-16-16-16l-97.5 0c-12.6 0-25 3.7-35.5 10.7l-61.7 41.1c-11 7.4-25.9 4.4-33.3-6.7s-4.4-25.9 6.7-33.3l61.7-41.1c18.4-12.3 40-18.8 62.1-18.8L384 32c34.7 0 62.9 27.6 64 62c14.6 11.7 24 29.7 24 50c0 4.5-.5 8.8-1.3 13c15.4 11.7 25.3 30.2 25.3 51c0 6.5-1 12.8-2.8 18.7C504.8 238.3 512 254.3 512 272c0 35.3-28.6 64-64 64l-92.3 0c4.7 10.4 8.7 21.2 11.8 32.2l5.7 20c10.9 38.2-11.2 78.1-49.4 89zM32 384c-17.7 0-32-14.3-32-32L0 128c0-17.7 14.3-32 32-32l64 0c17.7 0 32 14.3 32 32l0 224c0 17.7-14.3 32-32 32l-64 0z" />
+    </Svg>
+  );
+};
+
+const BookmarkSvg = () => {
+  return (
+    <Svg style={styles.shareSvg} viewBox="0 0 384 512">
+      <Path d="M0 48C0 21.5 21.5 0 48 0l0 48 0 393.4 130.1-92.9c8.3-6 19.6-6 27.9 0L336 441.4 336 48 48 48 48 0 336 0c26.5 0 48 21.5 48 48l0 440c0 9-5 17.2-13 21.3s-17.6 3.4-24.9-1.8L192 397.5 37.9 507.5c-7.3 5.2-16.9 5.9-24.9 1.8S0 497 0 488L0 48z" />
+    </Svg>
+  );
+};
+
 export default function Article({
   article,
 }: {
   article: ArticleExtendedModel;
 }) {
+  const [reasoning, setReasoning] = useState<ReasoningData>({ Reasoning: [] });
+  const [threadId, setThreadId] = useState<string>("");
+  const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
+  const [showFeedbackReasoning, setShowFeedbackReasoning] =
+    useState<boolean>(false);
+  const initializeThread = async () => {
+    setFeedbackLoading(true);
+    const userId = await SecureStore.getItemAsync("userId");
+
+    const body = JSON.stringify({
+      userId,
+      uniqueId,
+      category: Categories.LIKE,
+      articleId: article.ArticleId,
+    });
+
+    try {
+      const result: InitializeMessageResponseType = await fetchWrapper(
+        "/assistant/initialize-thread",
+        {
+          method: "POST",
+          body,
+        }
+      );
+      // the value of message in the message array returns a json string, so we need to parse it even tho the fetch wrapper parses the response
+      setReasoning(JSON.parse(result.messages[0].message));
+      setThreadId(result.threadId);
+      console.log("from fetch", result);
+      setShowFeedbackReasoning(true);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
   const handlePressButtonAsync = async () => {
     await WebBrowser.openBrowserAsync(article.Article.link);
   };
 
+  const handleLike = async () => {
+    await initializeThread();
+  };
+
+  const handleDislike = async () => {
+    console.log("i hate this article");
+  };
+
+  const handleBookmark = async () => {
+    console.log("i want to bookmark this article");
+  };
   const handleShare = async () => {
     await Share.share({
       message: article.Article.link,
     });
   };
-
   return (
     <View style={styles.article}>
       <View style={styles.container}>
@@ -71,10 +160,53 @@ export default function Article({
         ) : (
           <View />
         )}
+      </View>
+      <View style={styles.actions}>
+        <TouchableOpacity onPress={handleLike} style={styles.share}>
+          <LikeSvg />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleDislike} style={styles.share}>
+          <DislikeSvg />
+        </TouchableOpacity>
+        <View style={styles.verticalLine}></View>
+        <TouchableOpacity onPress={handleShare} style={styles.share}>
+          <BookmarkSvg />
+        </TouchableOpacity>
         <TouchableOpacity onPress={handleShare} style={styles.share}>
           <ArrowSvg />
         </TouchableOpacity>
       </View>
+      {feedbackLoading && <ActivityIndicator />}
+      {showFeedbackReasoning && (
+        <View style={styles.feedback}>
+          <View style={styles.feedbackHeader}>
+            <LikeSvg />
+            <Text>
+              You seem to like this piece of reading. Tell us why, so we can get
+              to know you better.?
+            </Text>
+
+            <TouchableOpacity
+              style={styles.close}
+              onPress={() => setShowFeedbackReasoning(false)}
+            >
+              <AntDesign name="close" size={20} color="#0029FF" />
+            </TouchableOpacity>
+          </View>
+          {reasoning.Reasoning.map((reasoning, index) => (
+            <Action key={index} action={() => setShowFeedbackReasoning(false)}>
+              {reasoning}
+            </Action>
+          ))}
+          <Action
+            key="talk-to-assistant"
+            action={() => setShowFeedbackReasoning(false)}
+          >
+            Let me chat with my assistant
+          </Action>
+          {/* <Text>feedback goes here</Text> */}
+        </View>
+      )}
     </View>
   );
 }
@@ -102,6 +234,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    width: "50%",
     alignItems: "center",
   },
   link: {
@@ -138,5 +271,37 @@ const styles = StyleSheet.create({
     fill: "#979BB1",
     width: 16,
     height: 16,
+  },
+  verticalLine: {
+    height: "100%",
+    width: 1,
+    backgroundColor: "#F9F7F7",
+  },
+
+  feedback: {
+    marginTop: 20,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F5FAFF",
+    padding: 16,
+    gap: 12,
+  },
+  feedbackHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 8,
+    padding: 22,
+  },
+  close: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F5FAFF",
+    padding: 8,
+    borderRadius: 4,
   },
 });
