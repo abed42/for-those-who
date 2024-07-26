@@ -20,9 +20,11 @@ import { Categories } from "@/constants/Categories";
 import Spinner from "react-native-loading-spinner-overlay";
 import "react-native-get-random-values";
 import { nanoid } from "nanoid";
+import ArticlePreview from "./ArticlePreview";
 
 type AssistantChatType = {
   setIsModalVisible: (isVisible: boolean) => void;
+  article?: any;
 };
 
 export type MessageType = {
@@ -42,6 +44,7 @@ export default function AssistantChat({
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [blocked, setBlocked] = useState<boolean>(false);
+  const [feedbackArticle, setFeedbackArticle] = useState<boolean>(true);
   const [threadId, setThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
@@ -158,7 +161,12 @@ export default function AssistantChat({
   };
 
   useEffect(() => {
-    initiateAssistant();
+    //todo: change
+    if (false) {
+      initiateAssistant();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -204,6 +212,16 @@ export default function AssistantChat({
           }
         >
           <>
+            {
+              <ChatMessage
+                key={nanoid()}
+                role={"assistant"}
+                message={
+                  "Hi! You seem to like this piece of reading. Tell me why!"
+                }
+              />
+            }
+            {feedbackArticle && <ArticlePreview article={{}} />}
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -212,6 +230,7 @@ export default function AssistantChat({
               />
             ))}
             {assistantTyping && <Text style={styles.typing}>Typing...</Text>}
+
             {chatClues && (
               <ChatClues
                 clues={chatClues}
