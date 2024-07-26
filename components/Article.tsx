@@ -329,7 +329,7 @@ export default function Article({
       {showFeedbackReasoning && (
         <View style={styles.feedback}>
           <FeedbackHeader
-            actionType={actionType}
+            actionType={localActionType}
             closeAction={() => {
               setShowFeedbackReasoning(false);
               setLocalActionType(undefined);
