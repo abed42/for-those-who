@@ -24,10 +24,6 @@ import ArticlePreview from "./ArticlePreview";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 
-type AssistantChatType = {
-  article?: any;
-};
-
 export type MessageType = {
   role: string;
   message: string;
@@ -44,7 +40,6 @@ export default function AssistantChat() {
   const [loading, setLoading] = useState<boolean>(true);
   const [blocked, setBlocked] = useState<boolean>(false);
   const [feedbackArticle, setFeedbackArticle] = useState<boolean>(false);
-  // const [threadId, setThreadId] = useState<string>("");
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>("");
