@@ -4,6 +4,7 @@ import { Text, View } from "@/components/Themed";
 import { useForm, Controller } from "react-hook-form";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import fetchWrapper from "@/utils/fetchWrapper";
 
 type LogInForm = {
   email: string;
@@ -13,6 +14,11 @@ interface LoginPageProps {
   handleAnimation: () => void;
   setIsLoading: (isLoading: boolean) => void;
 }
+
+type LoginResponseType = {
+  userId: string;
+  token: string;
+};
 
 const LoginPage: React.FC<LoginPageProps> = ({
   handleAnimation,
@@ -29,45 +35,34 @@ const LoginPage: React.FC<LoginPageProps> = ({
     },
   });
 
-  const [credentialsError, setCredentialsError] = React.useState<boolean>(false);
+  const [credentialsError, setCredentialsError] =
+    React.useState<boolean>(false);
 
   const getToken = async (data: LogInForm) => {
     try {
-      const url = "https://staging.forthosewho.com/v2/users/login";
       const body = JSON.stringify({
         username: data.email,
         password: data.password,
       });
-      const headers = {
-        "Content-Type": "application/json",
-      };
 
-      const response = await fetch(url, {
+      const response: LoginResponseType = await fetchWrapper("/users/login", {
         method: "POST",
-        headers: headers,
         body: body,
       });
+      handleAnimation();
 
-      if (!response.ok) {
-        throw new Error(`${response.status}`);
-      }
-       handleAnimation();
-
-      const json = await response.json();
-
-      await SecureStore.setItemAsync("userId", json.userId);
-      await SecureStore.setItemAsync("token", json.token);
+      await SecureStore.setItemAsync("userId", response.userId);
+      await SecureStore.setItemAsync("token", response.token);
 
       setTimeout(() => {
-        router.replace("/articles");
+        router.replace("/(tabs)/feed");
         setIsLoading(false);
       }, 2400);
-
     } catch (error) {
-      if (error instanceof Error && error.message === '401') {
-        console.error('An error occurred:', error.message);
+      if (error instanceof Error && error.message === "401") {
+        console.error("An error occurred:", error.message);
         setCredentialsError(true);
-      } 
+      }
     }
   };
 
@@ -86,6 +81,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Text style={styles.label}>Account name or email</Text>
             <TextInput
               {...field}
+              onSelectionChange={() => setCredentialsError(false)}
               style={styles.input}
               placeholder="name@forthosewho.com"
               onChangeText={field.onChange}
@@ -106,6 +102,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Text style={styles.label}>Password</Text>
             <TextInput
               {...field}
+              onSelectionChange={() => setCredentialsError(false)}
               style={styles.input}
               placeholder="Password"
               onChangeText={field.onChange}
@@ -119,9 +116,11 @@ const LoginPage: React.FC<LoginPageProps> = ({
       {errors.password && typeof errors.password.message === "string" && (
         <Text style={styles.errorText}>{errors.password.message}</Text>
       )}
-      {credentialsError && 
-        <Text style={styles.errorText}>Wrong credentials, please try again!</Text>
-      }
+      {credentialsError && (
+        <Text style={styles.errorText}>
+          Wrong credentials, please try again!
+        </Text>
+      )}
       <TouchableOpacity
         style={styles.forgotPasswordContainer}
         onPress={() => console.log("i forgot my password")}

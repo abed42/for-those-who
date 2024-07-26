@@ -3,7 +3,6 @@ import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
-
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -33,7 +32,6 @@ const SvgComponent = () => {
   );
 };
 
-
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -44,8 +42,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    SourseSerif4: require("../assets/fonts/SourceSerif4-Bold.ttf"),
+    SpaceMono: require("@/assets/fonts/SpaceMono-Regular.ttf"),
+    SourseSerif4: require("@/assets/fonts/SourceSerif4-Bold.ttf"),
     ...FontAwesome.font,
   });
 
@@ -79,12 +77,7 @@ function RootLayoutNav() {
             header: () => null,
           }}
         />
-        <Stack.Screen
-          name="articles/index"
-          options={{
-            headerTitle: (props) => <SvgComponent />,
-          }}
-        />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

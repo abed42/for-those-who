@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Share,
+  Alert,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser";
-import * as Sharing from "expo-sharing";
 
 const removeSpecialChars = (text: string) =>
   text.replaceAll("\n", "").replaceAll("\t", "");
@@ -22,13 +29,21 @@ const ArrowSvg = () => {
     </Svg>
   );
 };
-export default function Article({ article }: { article: any }) {
-  const [result, setResult] = useState<any>(null);
-
+export default function Article({
+  article,
+}: {
+  article: ArticleExtendedModel;
+}) {
   const handlePressButtonAsync = async () => {
-    let result = await WebBrowser.openBrowserAsync(article.Article.link);
-    setResult(result);
+    await WebBrowser.openBrowserAsync(article.Article.link);
   };
+
+  const handleShare = async () => {
+    await Share.share({
+      message: article.Article.link,
+    });
+  };
+
   return (
     <View style={styles.article}>
       <View style={styles.container}>
@@ -39,7 +54,7 @@ export default function Article({ article }: { article: any }) {
         >
           {article.Article.title}
         </Text>
-        <Image source={require("../assets/images/testImage.png")} />
+        <Image source={require("@/assets/images/testImage.png")} />
       </View>
       <Text numberOfLines={4}>
         {removeSpecialChars(article.Article.content)}
@@ -56,10 +71,7 @@ export default function Article({ article }: { article: any }) {
         ) : (
           <View />
         )}
-        <TouchableOpacity
-          onPress={() => Sharing.shareAsync(article.Article.link)}
-          style={styles.share}
-        >
+        <TouchableOpacity onPress={handleShare} style={styles.share}>
           <ArrowSvg />
         </TouchableOpacity>
       </View>

@@ -4,11 +4,17 @@ import { SafeAreaView, StyleSheet } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import fetchWrapper from "@/utils/fetchWrapper";
 
-const Articles = () => {
+type ArticleResponseType = {
+  count: number;
+  rows: ArticleExtendedModel[];
+};
+
+const Feed = () => {
   const PER_PAGE = 10;
-  const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<ArticleExtendedModel[]>([]);
   const [offset, setOffset] = useState<number>(0);
 
   const getArticles = async () => {
@@ -16,16 +22,13 @@ const Articles = () => {
     const userId = await SecureStore.getItemAsync("userId");
 
     try {
-      const response = await fetch(
-        `https://staging.forthosewho.com/v2/users/${userId}/articles?offset=${offset}&limit=${PER_PAGE}`,
+      const response: ArticleResponseType = await fetchWrapper(
+        `/users/${userId}/articles?offset=${offset}&limit=${PER_PAGE}`,
         {
-          headers: new Headers({
-            Authorization: "Bearer " + token,
-          }),
+          headers: { Authorization: "Bearer " + token },
         }
       );
-      const json = await response.json();
-      setData([...data, ...json.rows]);
+      setData([...data, ...response.rows]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -33,17 +36,13 @@ const Articles = () => {
     }
   };
 
+  // fetch articles at the end of the list
   useEffect(() => {
     getArticles();
   }, [offset]);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "white",
-      }}
-    >
+    <SafeAreaView style={styles.layout}>
       {isLoading ? (
         <ActivityIndicator style={styles.footer} />
       ) : (
@@ -74,6 +73,10 @@ const Articles = () => {
 };
 
 const styles = StyleSheet.create({
+  layout: {
+    flex: 1,
+    backgroundColor: "white",
+  },
   header: {
     flex: 1,
     paddingLeft: 24,
@@ -99,4 +102,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Articles;
+export default Feed;
