@@ -1,7 +1,6 @@
 import Action from "@/components/Action";
-import AssistantChat from "@/components/AssistantChat";
 import Clue from "@/components/Clue";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,14 +9,15 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import ModalScreen from "@/components/modal";
 import fetchWrapper from "@/utils/fetchWrapper";
 import * as SecureStore from "expo-secure-store";
 import { uniqueId } from "@/constants/UniqueId";
 import { UserModel } from "@/models/user";
+import { AssistantModalContext } from "../contexts/AssistantModalContext";
 
 const Assistant = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { setIsModalVisible } = useContext(AssistantModalContext);
+
   const actions = [
     "I hate some of my clues",
     "I want to change some of my clues",
@@ -97,12 +97,6 @@ const Assistant = () => {
         )}
         <View style={{ padding: 8 }} />
       </View>
-      <ModalScreen
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-      >
-        <AssistantChat setIsModalVisible={setIsModalVisible} />
-      </ModalScreen>
     </ScrollView>
   );
 };

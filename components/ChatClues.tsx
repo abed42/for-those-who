@@ -5,6 +5,8 @@ import fetchWrapper from "@/utils/fetchWrapper";
 import * as SecureStore from "expo-secure-store";
 import { Categories } from "@/constants/Categories";
 import { uniqueId } from "@/constants/UniqueId";
+import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
+import { useContext } from "react";
 
 type CluesType = {
   cluesToBeAdded: { clue: string; id: string }[];
@@ -15,21 +17,18 @@ type CluesType = {
 export default function ChatClues({
   clues,
   setClues,
-  threadId,
-  setIsModalVisible,
 }: {
   clues: CluesType;
   setClues: (clues?: CluesType) => void;
-  threadId: string;
-  setIsModalVisible: (isVisible: boolean) => void;
 }) {
+  const { setIsModalVisible } = useContext(AssistantModalContext);
+
   const updateProfile = async () => {
     const userId = await SecureStore.getItemAsync("userId");
 
     const body = JSON.stringify({
       userId,
       uniqueId,
-      threadId,
       category: Categories.CHANGE_CLUES,
       cluesToBeAdded: clues.cluesToBeAdded,
       cluesToBeRemoved: clues.cluesToBeRemoved,

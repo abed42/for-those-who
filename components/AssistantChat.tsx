@@ -10,7 +10,7 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
@@ -20,10 +20,9 @@ import { Categories } from "@/constants/Categories";
 import Spinner from "react-native-loading-spinner-overlay";
 import "react-native-get-random-values";
 import { nanoid } from "nanoid";
-
-type AssistantChatType = {
-  setIsModalVisible: (isVisible: boolean) => void;
-};
+import ArticlePreview from "./ArticlePreview";
+import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
+import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 
 export type MessageType = {
   role: string;
@@ -36,18 +35,21 @@ type InitializeMessageResponseType = {
   messages: MessageType[];
 };
 
-export default function AssistantChat({
-  setIsModalVisible,
-}: AssistantChatType) {
+export default function AssistantChat() {
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [blocked, setBlocked] = useState<boolean>(false);
-  const [threadId, setThreadId] = useState<string>("");
+  const [feedbackArticle, setFeedbackArticle] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>("");
   const [loadingClues, setLoadingClues] = useState<boolean>(false);
   const [assistantTyping, setAssistantTyping] = useState<boolean>(false);
+  const { setIsModalVisible } = useContext(AssistantModalContext);
+  const { article, threadId, setThreadId } = useContext(
+    AssistantArticleContext
+  );
+
   const getChatClues = async () => {
     setBlocked(true);
     const body = JSON.stringify({
@@ -158,7 +160,13 @@ export default function AssistantChat({
   };
 
   useEffect(() => {
-    initiateAssistant();
+    //todo: change
+    if (!article) {
+      initiateAssistant();
+    } else {
+      setFeedbackArticle(true);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -204,6 +212,18 @@ export default function AssistantChat({
           }
         >
           <>
+            {feedbackArticle && (
+              <>
+                <ChatMessage
+                  key={nanoid()}
+                  role={"assistant"}
+                  message={
+                    "Hi! You seem to like this piece of reading. Tell me why!"
+                  }
+                />
+                <ArticlePreview />
+              </>
+            )}
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -212,13 +232,9 @@ export default function AssistantChat({
               />
             ))}
             {assistantTyping && <Text style={styles.typing}>Typing...</Text>}
+
             {chatClues && (
-              <ChatClues
-                clues={chatClues}
-                setClues={setChatClues}
-                threadId={threadId}
-                setIsModalVisible={setIsModalVisible}
-              />
+              <ChatClues clues={chatClues} setClues={setChatClues} />
             )}
           </>
         </ScrollView>

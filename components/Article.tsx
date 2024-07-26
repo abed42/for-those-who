@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -17,6 +17,8 @@ import { uniqueId } from "@/constants/UniqueId";
 import { Categories } from "@/constants/Categories";
 import Action from "./Action";
 import { AntDesign } from "@expo/vector-icons";
+import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
+import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 export type MessageType = {
   role: string;
   message: string | any;
@@ -105,12 +107,17 @@ export default function Article({
   article: ArticleExtendedModel;
 }) {
   const [reasoning, setReasoning] = useState<ReasoningData>({ Reasoning: [] });
-  const [threadId, setThreadId] = useState<string>("");
+  // const [threadId, setThreadId] = useState<string>("");
   const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [showFeedbackReasoning, setShowFeedbackReasoning] =
     useState<boolean>(false);
+  const { setIsModalVisible } = useContext(AssistantModalContext);
+  const { setArticle, threadId, setThreadId } = useContext(
+    AssistantArticleContext
+  );
+
   const updateProfile = async (clues: CluesType) => {
     const userId = await SecureStore.getItemAsync("userId");
 
@@ -291,7 +298,11 @@ export default function Article({
             <Action
               // to do open the modal and provide threadID & article obj
               key="talk-to-assistant"
-              action={() => setShowFeedbackReasoning(false)}
+              action={() => {
+                setIsModalVisible(true);
+                setArticle(article);
+                setShowFeedbackReasoning(false);
+              }}
             >
               Let me chat with my assistant
             </Action>
