@@ -2,7 +2,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import Svg, { Path } from "react-native-svg";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 
 const LinkSvg = () => {
@@ -13,12 +13,8 @@ const LinkSvg = () => {
   );
 };
 
-type ArticlePreviewType = {
-  article: any;
-};
-
 export default function ArticlePreview() {
-  const { article } = useContext(AssistantArticleContext);
+  const { article, actionType } = useContext(AssistantArticleContext);
 
   const handlePressButtonAsync = async () => {
     await WebBrowser.openBrowserAsync(article.link);
@@ -67,7 +63,7 @@ export default function ArticlePreview() {
           <Text style={[styles.action]}>
             based on <Text style={[styles.italics]}>2 clues</Text>
           </Text>
-          <View></View>
+          <Text>{actionType}</Text>
         </View>
       </View>
     </View>

@@ -6,6 +6,7 @@ import "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 import { AssistantModalContext } from "../contexts/AssistantModalContext";
 import { AssistantArticleContext } from "../contexts/AssistantArticleContext";
+import { ActionType } from "@/constants/ActionType";
 
 const SvgComponent = () => {
   return (
@@ -52,13 +53,21 @@ export default function TabsLayout() {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [threadId, setThreadId] = useState<string>("");
   const [article, setArticle] = useState<any>({});
+  const [actionType, setActionType] = useState<ActionType>();
 
   return (
     <AssistantModalContext.Provider
       value={{ isModalVisible, setIsModalVisible }}
     >
       <AssistantArticleContext.Provider
-        value={{ article, setArticle, threadId, setThreadId }}
+        value={{
+          article,
+          setArticle,
+          threadId,
+          setThreadId,
+          actionType,
+          setActionType,
+        }}
       >
         <Tabs
           screenOptions={{

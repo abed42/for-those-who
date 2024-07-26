@@ -23,6 +23,7 @@ import { nanoid } from "nanoid";
 import ArticlePreview from "./ArticlePreview";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
+import { ActionType } from "@/constants/ActionType";
 
 export type MessageType = {
   role: string;
@@ -46,7 +47,7 @@ export default function AssistantChat() {
   const [loadingClues, setLoadingClues] = useState<boolean>(false);
   const [assistantTyping, setAssistantTyping] = useState<boolean>(false);
   const { setIsModalVisible } = useContext(AssistantModalContext);
-  const { article, setArticle, threadId, setThreadId } = useContext(
+  const { setArticle, threadId, setThreadId, actionType } = useContext(
     AssistantArticleContext
   );
 
@@ -221,9 +222,9 @@ export default function AssistantChat() {
                 <ChatMessage
                   key={nanoid()}
                   role={"assistant"}
-                  message={
-                    "Hi! You seem to like this piece of reading. Tell me why!"
-                  }
+                  message={`Hi! You seem to ${
+                    actionType === ActionType.DISLIKE && "not"
+                  } like this piece of reading. Tell me why!`}
                 />
                 <ArticlePreview />
               </>

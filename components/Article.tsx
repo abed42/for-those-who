@@ -19,6 +19,7 @@ import Action from "./Action";
 import { AntDesign } from "@expo/vector-icons";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
+import { ActionType } from "@/constants/ActionType";
 export type MessageType = {
   role: string;
   message: string | any;
@@ -113,7 +114,7 @@ export default function Article({
   const [showFeedbackReasoning, setShowFeedbackReasoning] =
     useState<boolean>(false);
   const { setIsModalVisible } = useContext(AssistantModalContext);
-  const { setArticle, threadId, setThreadId } = useContext(
+  const { setArticle, threadId, setThreadId, setActionType } = useContext(
     AssistantArticleContext
   );
 
@@ -215,10 +216,12 @@ export default function Article({
   };
 
   const handleLike = async () => {
+    setActionType(ActionType.LIKE);
     await initializeThread({ positive: true });
   };
 
   const handleDislike = async () => {
+    setActionType(ActionType.DISLIKE);
     await initializeThread({ positive: false });
   };
 

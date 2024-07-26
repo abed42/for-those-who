@@ -1,3 +1,4 @@
+import { ActionType } from "@/constants/ActionType";
 import { createContext } from "react";
 
 type AssistantArticleContextType = {
@@ -5,6 +6,8 @@ type AssistantArticleContextType = {
   setArticle: (article: any) => void;
   threadId: string;
   setThreadId: (threadId: string) => void;
+  actionType?: ActionType;
+  setActionType: (action: ActionType) => void;
 };
 
 export const AssistantArticleContext =
@@ -13,4 +16,5 @@ export const AssistantArticleContext =
     setArticle: () => {},
     threadId: "",
     setThreadId: () => {},
+    setActionType: () => {},
   });
