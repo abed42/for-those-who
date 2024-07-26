@@ -14,9 +14,11 @@ import * as SecureStore from "expo-secure-store";
 import { uniqueId } from "@/constants/UniqueId";
 import { UserModel } from "@/models/user";
 import { AssistantModalContext } from "../contexts/AssistantModalContext";
+import { AssistantArticleContext } from "../contexts/AssistantArticleContext";
 
 const Assistant = () => {
   const { setIsModalVisible } = useContext(AssistantModalContext);
+  const { setThreadId } = useContext(AssistantArticleContext);
 
   const actions = [
     "I hate some of my clues",
@@ -48,6 +50,7 @@ const Assistant = () => {
   };
 
   const createAction = () => {
+    setThreadId("");
     setIsModalVisible(true);
   };
 
