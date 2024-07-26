@@ -20,28 +20,6 @@ type ArticlePreviewType = {
 export default function ArticlePreview() {
   const { article } = useContext(AssistantArticleContext);
 
-  // article = {
-  //   id: "e407fbb5-799c-4c53-af95-2ea2cd22fd1f",
-  //   content:
-  //     'Hello, I want to learn Playwright and Cucumber, so I started with this tutorial https://talent500.co/blog/how-to-integrate-cucumber-with-playwright/ I followed all the steps, but I still get this error when I try to run the tests. UUUUUU Failures: 1) Scenario: Login Functionality # tests\\features\\login.feature:3 ...steps desciption 1 scenario (1 undefined) 6 steps (6 undefined)  The structure is this: playwright_talent500/ │ ├── features/ │ └── login.feature │ └── steps/ └── login.js  package.json { "name": "cucumber", "version": "1.0.0", "main": "index.js", "scripts": { "test": "cucumber-js test" }, "keywords": [], "author": "", "license": "ISC", "description": "", "devDependencies": { "@cucumber/cucumber": "^10.8.0", "@playwright/test": "^1.45.3", "@types/node": "^20.14.12" } }  login.feature Feature: Login Functionality Scenario: Login Functionality Given User navigates to the application When I enter the username as "email" When I enter the password as "password" When I click on login button Then User should logged in successfully Then Logout from the application  I tried to solve this with chat GPT, I followed all the steps but nothing... can someone please help me?    submitted by    /u/Icy-Purple-1814   [link]   [comments]',
-  //   createdAt: "2024-07-26T11:57:48.686Z",
-  //   updatedAt: "2024-07-26T11:57:48.686Z",
-  //   link: "https://www.reddit.com/r/QualityAssurance/comments/1ecm1hs/1_scenario_1_undefined_6_steps_6_undefined/",
-  //   title: "1 scenario (1 undefined) 6 steps (6 undefined)",
-  //   imageUrl:
-  //     "https://cdn.analyticsvidhya.com/wp-content/uploads/2024/07/Index-in-Sql-80.jpg",
-  //   Source: {
-  //     id: "941a50be-f320-4071-b4e9-194fe8c06e78",
-  //     name: "Twitter",
-  //     sourceId: "feed/https://www.reddit.com/r/QualityAssurance/.rss",
-  //     isFirstScoring: null,
-  //     isFirstMatching: null,
-  //     createdAt: "2024-06-26T06:42:31.359Z",
-  //     updatedAt: "2024-06-26T06:42:31.359Z",
-  //     sourceGroupId: null,
-  //   },
-  // };
-
   const handlePressButtonAsync = async () => {
     await WebBrowser.openBrowserAsync(article.link);
   };
@@ -72,9 +50,19 @@ export default function ArticlePreview() {
               <Text style={styles.linkText}>{article.Source?.name}</Text>
             </TouchableOpacity>
           )}
-          <Text style={[styles.action]}>•</Text>
-          <FontAwesome5 name="glasses" size={12} color="#979BB1" />
-          <Text style={[styles.action]}>5 min read</Text>
+
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <Text style={[styles.action]}>•</Text>
+            <FontAwesome5 name="glasses" size={12} color="#979BB1" />
+            <Text style={[styles.action]}>5 min read</Text>
+          </View>
           <Text style={[styles.action]}>•</Text>
           <Text style={[styles.action]}>
             based on <Text style={[styles.italics]}>2 clues</Text>
@@ -108,7 +96,8 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 80,
-    height: "auto",
+    height: 80,
+    borderRadius: 16,
   },
   link: {
     width: "auto",

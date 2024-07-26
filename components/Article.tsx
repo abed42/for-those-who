@@ -107,10 +107,9 @@ export default function Article({
   article: ArticleExtendedModel;
 }) {
   const [reasoning, setReasoning] = useState<ReasoningData>({ Reasoning: [] });
-  // const [threadId, setThreadId] = useState<string>("");
   const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
-  const [showFeedback, setShowFeedback] = useState<boolean>(false);
-  const [messages, setMessages] = useState<MessageType[]>([]);
+
+  const [_, setMessages] = useState<MessageType[]>([]);
   const [showFeedbackReasoning, setShowFeedbackReasoning] =
     useState<boolean>(false);
   const { setIsModalVisible } = useContext(AssistantModalContext);
@@ -135,7 +134,7 @@ export default function Article({
         method: "POST",
         body,
       });
-      console.log("request to update profile made successfully", body);
+
       setShowFeedbackReasoning(false);
     } catch (err) {
       console.log(err);
@@ -151,7 +150,7 @@ export default function Article({
         "/assistant/retrieve-clues",
         { method: "POST", body }
       );
-      console.log("🫠🫠🫠🫠", JSON.parse(response[0].message));
+
       await updateProfile(JSON.parse(response[0].message));
       return response;
     } catch (e) {
@@ -160,7 +159,6 @@ export default function Article({
   };
 
   const sendMessage = async (message: string) => {
-    console.log("message", message);
     const body = JSON.stringify({
       uniqueId,
       threadId,
@@ -175,7 +173,7 @@ export default function Article({
           body,
         }
       );
-      console.log("resultsssssssssss pizaa", result);
+
       setMessages(result);
       await getClues();
     } catch (err) {
@@ -217,7 +215,6 @@ export default function Article({
   };
 
   const handleLike = async () => {
-    setShowFeedback(true);
     await initializeThread({ positive: true });
   };
 
@@ -243,7 +240,12 @@ export default function Article({
         >
           {article.Article.title}
         </Text>
-        <Image source={require("@/assets/images/testImage.png")} />
+        {article.Article.imageUrl && (
+          <Image
+            style={styles.image}
+            source={{ uri: article.Article.imageUrl }}
+          />
+        )}
       </View>
       <Text numberOfLines={4}>
         {removeSpecialChars(article.Article.content)}
@@ -300,7 +302,7 @@ export default function Article({
               key="talk-to-assistant"
               action={() => {
                 setIsModalVisible(true);
-                setArticle(article);
+                setArticle(article.Article);
                 setShowFeedbackReasoning(false);
               }}
             >
@@ -330,6 +332,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginRight: 8,
+  },
+  image: {
+    width: 82,
+    height: 82,
+    borderRadius: 16,
   },
   actions: {
     marginTop: 20,

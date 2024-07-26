@@ -7,6 +7,7 @@ import { Categories } from "@/constants/Categories";
 import { uniqueId } from "@/constants/UniqueId";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { useContext } from "react";
+import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 
 type CluesType = {
   cluesToBeAdded: { clue: string; id: string }[];
@@ -22,6 +23,7 @@ export default function ChatClues({
   setClues: (clues?: CluesType) => void;
 }) {
   const { setIsModalVisible } = useContext(AssistantModalContext);
+  const { setArticle, setThreadId } = useContext(AssistantArticleContext);
 
   const updateProfile = async () => {
     const userId = await SecureStore.getItemAsync("userId");
@@ -40,6 +42,10 @@ export default function ChatClues({
         body,
       });
       setIsModalVisible(false);
+
+      // reset context
+      setArticle({});
+      setThreadId("");
     } catch (err) {
       console.log(err);
     }

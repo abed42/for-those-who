@@ -46,9 +46,17 @@ export default function AssistantChat() {
   const [loadingClues, setLoadingClues] = useState<boolean>(false);
   const [assistantTyping, setAssistantTyping] = useState<boolean>(false);
   const { setIsModalVisible } = useContext(AssistantModalContext);
-  const { article, threadId, setThreadId } = useContext(
+  const { article, setArticle, threadId, setThreadId } = useContext(
     AssistantArticleContext
   );
+
+  const onClosePressed = () => {
+    setIsModalVisible(false);
+
+    // reset context
+    setArticle({});
+    setThreadId("");
+  };
 
   const getChatClues = async () => {
     setBlocked(true);
@@ -160,8 +168,7 @@ export default function AssistantChat() {
   };
 
   useEffect(() => {
-    //todo: change
-    if (!article) {
+    if (!threadId) {
       initiateAssistant();
     } else {
       setFeedbackArticle(true);
@@ -184,10 +191,7 @@ export default function AssistantChat() {
       <Spinner visible={loadingClues} color="#0029FF" size={"large"} />
       <View style={styles.header}>
         <Text style={styles.headerText}>Assistant Chat</Text>
-        <TouchableOpacity
-          style={styles.close}
-          onPress={() => setIsModalVisible(false)}
-        >
+        <TouchableOpacity style={styles.close} onPress={onClosePressed}>
           <AntDesign name="close" size={20} color="#0029FF" />
         </TouchableOpacity>
       </View>
