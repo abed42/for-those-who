@@ -223,8 +223,8 @@ export default function AssistantChat() {
                   key={nanoid()}
                   role={"assistant"}
                   message={`Hi! You seem to ${
-                    actionType === ActionType.DISLIKE && "not"
-                  } like this piece of reading. Tell me why!`}
+                    actionType === ActionType.DISLIKE ? "not " : ""
+                  }like this piece of reading. Tell me why!`}
                 />
                 <ArticlePreview />
               </>

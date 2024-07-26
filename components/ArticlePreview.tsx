@@ -4,6 +4,8 @@ import Svg, { Path } from "react-native-svg";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useContext } from "react";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
+import { ActionType } from "@/constants/ActionType";
+import { DislikeSvg, LikeSvg } from "./Article";
 
 const LinkSvg = () => {
   return (
@@ -63,7 +65,28 @@ export default function ArticlePreview() {
           <Text style={[styles.action]}>
             based on <Text style={[styles.italics]}>2 clues</Text>
           </Text>
-          <Text>{actionType}</Text>
+
+          {actionType === ActionType.LIKE ? (
+            <View
+              style={{
+                padding: 8,
+                backgroundColor: "#F5FAFF",
+                borderRadius: 100,
+              }}
+            >
+              <LikeSvg style={{ width: 12, height: 12, fill: "#0029FF" }} />
+            </View>
+          ) : (
+            <View
+              style={{
+                padding: 8,
+                backgroundColor: "#FFF0F4",
+                borderRadius: 100,
+              }}
+            >
+              <DislikeSvg style={{ width: 12, height: 12, fill: "#F9325D" }} />
+            </View>
+          )}
         </View>
       </View>
     </View>
