@@ -131,6 +131,7 @@ export default function Article({
   const { setIsModalVisible } = useContext(AssistantModalContext);
   const { setArticle, threadId, setThreadId, actionType, setActionType } =
     useContext(AssistantArticleContext);
+  const [localActionType, setLocalActionType] = useState<ActionType>();
 
   const updateProfile = async (clues: CluesType) => {
     const userId = await SecureStore.getItemAsync("userId");
@@ -231,11 +232,13 @@ export default function Article({
 
   const handleLike = async () => {
     setActionType(ActionType.LIKE);
+    setLocalActionType(ActionType.LIKE);
     await initializeThread({ positive: true });
   };
 
   const handleDislike = async () => {
     setActionType(ActionType.DISLIKE);
+    setLocalActionType(ActionType.DISLIKE);
     await initializeThread({ positive: false });
   };
 
@@ -281,13 +284,35 @@ export default function Article({
         )}
       </View>
       <View style={styles.actions}>
-        <TouchableOpacity onPress={handleLike} style={styles.share}>
+        <TouchableOpacity
+          onPress={handleLike}
+          style={[
+            styles.share,
+            localActionType === ActionType.LIKE && styles.likeBtnWrapper,
+          ]}
+        >
           <LikeSvg
-            style={article?.isLiked ? styles.likedBtn : styles.actionSvg}
+            style={
+              localActionType === ActionType.LIKE
+                ? styles.likedBtn
+                : styles.actionSvg
+            }
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleDislike} style={styles.share}>
-          <DislikeSvg style={styles.actionSvg} />
+        <TouchableOpacity
+          onPress={handleDislike}
+          style={[
+            styles.share,
+            localActionType === ActionType.DISLIKE && styles.dislikeBtnWrapper,
+          ]}
+        >
+          <DislikeSvg
+            style={
+              localActionType === ActionType.DISLIKE
+                ? styles.dislikedBtn
+                : styles.actionSvg
+            }
+          />
         </TouchableOpacity>
         <View style={styles.verticalLine}></View>
         <TouchableOpacity
@@ -305,7 +330,10 @@ export default function Article({
         <View style={styles.feedback}>
           <FeedbackHeader
             actionType={actionType}
-            closeAction={() => setShowFeedbackReasoning(false)}
+            closeAction={() => {
+              setShowFeedbackReasoning(false);
+              setLocalActionType(undefined);
+            }}
           />
           {feedbackLoading && <ActivityIndicator style={{ padding: 8 }} />}
           {!feedbackLoading && (
@@ -403,9 +431,21 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
   },
+  likeBtnWrapper: {
+    backgroundColor: "#F5FAFF",
+  },
   likedBtn: {
     //@ts-ignore
     fill: "#0029FF",
+    width: 16,
+    height: 16,
+  },
+  dislikeBtnWrapper: {
+    backgroundColor: "#FFF0F4",
+  },
+  dislikedBtn: {
+    //@ts-ignore
+    fill: "#F9325D",
     width: 16,
     height: 16,
   },
@@ -422,12 +462,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     backgroundColor: "#F9325D",
-  },
-  dislikedBtn: {
-    //@ts-ignore
-    fill: "#979BB1",
-    width: 16,
-    height: 16,
   },
   verticalLine: {
     height: "100%",
