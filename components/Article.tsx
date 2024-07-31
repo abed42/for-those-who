@@ -20,6 +20,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { ActionType } from "@/constants/ActionType";
+import Animated, { FadeInDown } from "react-native-reanimated";
 export type MessageType = {
   role: string;
   message: string | any;
@@ -175,6 +176,7 @@ export default function Article({
   };
 
   const sendMessage = async (message: string) => {
+    setShowFeedbackReasoning(false);
     const body = JSON.stringify({
       uniqueId,
       threadId,
@@ -192,6 +194,7 @@ export default function Article({
 
       setMessages(result);
       await getClues();
+      setLocalActionType(undefined);
     } catch (err) {
       console.log(err);
     }
@@ -339,24 +342,25 @@ export default function Article({
           {!feedbackLoading && (
             <View style={styles.feedbackActions}>
               {reasoning.Reasoning.map((reason, index) => (
-                <Action
-                  key={index}
-                  action={async () => await sendMessage(reason)}
-                >
-                  {reason}
-                </Action>
+                <Animated.View entering={FadeInDown.delay((index + 1) * 150)} key={index}>
+                  <Action action={async () => await sendMessage(reason)}>
+                    {reason}
+                  </Action>
+                </Animated.View>
               ))}
-              <Action
-                // to do open the modal and provide threadID & article obj
-                key="talk-to-assistant"
-                action={() => {
-                  setIsModalVisible(true);
-                  setArticle(article.Article);
-                  setShowFeedbackReasoning(false);
-                }}
-              >
-                Let me chat with my assistant
-              </Action>
+              <Animated.View entering={FadeInDown.delay(3 * 150)}>
+                <Action
+                  // to do open the modal and provide threadID & article obj
+                  key="talk-to-assistant"
+                  action={() => {
+                    setIsModalVisible(true);
+                    setArticle(article.Article);
+                    setShowFeedbackReasoning(false);
+                  }}
+                >
+                  Let me chat with my assistant
+                </Action>
+              </Animated.View>
             </View>
           )}
         </View>
