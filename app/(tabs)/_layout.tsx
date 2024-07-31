@@ -1,6 +1,12 @@
+import AssistantChat from "@/components/AssistantChat";
+import ModalScreen from "@/components/modal";
 import { Tabs } from "expo-router";
+import { useState } from "react";
 import "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
+import { AssistantModalContext } from "../contexts/AssistantModalContext";
+import { AssistantArticleContext } from "../contexts/AssistantArticleContext";
+import { ActionType } from "@/constants/ActionType";
 
 const SvgComponent = () => {
   return (
@@ -44,29 +50,55 @@ const AssistantSvg = ({ fill }: { fill: string }) => {
 };
 
 export default function TabsLayout() {
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [threadId, setThreadId] = useState<string>("");
+  const [article, setArticle] = useState<any>({});
+  const [actionType, setActionType] = useState<ActionType>();
+
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "#0029FF",
-        tabBarStyle: { height: 92, paddingLeft: 12, paddingRight: 12 },
-      }}
+    <AssistantModalContext.Provider
+      value={{ isModalVisible, setIsModalVisible }}
     >
-      <Tabs.Screen
-        name="feed"
-        options={{
-          title: "Feed",
-          tabBarIcon: ({ color }) => <FeedSvg fill={color} />,
-          headerTitle: () => <SvgComponent />,
+      <AssistantArticleContext.Provider
+        value={{
+          article,
+          setArticle,
+          threadId,
+          setThreadId,
+          actionType,
+          setActionType,
         }}
-      />
-      <Tabs.Screen
-        name="assistant"
-        options={{
-          title: "Assistant",
-          tabBarIcon: ({ color }) => <AssistantSvg fill={color} />,
-          headerTitle: () => <SvgComponent />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs
+          screenOptions={{
+            tabBarActiveTintColor: "#0029FF",
+            tabBarStyle: { height: 92, paddingLeft: 12, paddingRight: 12 },
+          }}
+        >
+          <Tabs.Screen
+            name="feed"
+            options={{
+              title: "Feed",
+              tabBarIcon: ({ color }) => <FeedSvg fill={color} />,
+              headerTitle: () => <SvgComponent />,
+            }}
+          />
+          <Tabs.Screen
+            name="assistant"
+            options={{
+              title: "Assistant",
+              tabBarIcon: ({ color }) => <AssistantSvg fill={color} />,
+              headerTitle: () => <SvgComponent />,
+            }}
+          />
+        </Tabs>
+        <ModalScreen
+          isVisible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+        >
+          <AssistantChat />
+        </ModalScreen>
+      </AssistantArticleContext.Provider>
+    </AssistantModalContext.Provider>
   );
 }

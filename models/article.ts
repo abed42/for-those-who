@@ -25,6 +25,7 @@ type ArticleModel = {
   createdAt: string;
   updatedAt: string;
   sourceId: string;
+  imageUrl: string;
   Source: SourceModel;
 };
 

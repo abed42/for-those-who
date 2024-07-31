@@ -10,7 +10,7 @@ import {
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
@@ -20,10 +20,10 @@ import { Categories } from "@/constants/Categories";
 import Spinner from "react-native-loading-spinner-overlay";
 import "react-native-get-random-values";
 import { nanoid } from "nanoid";
-
-type AssistantChatType = {
-  setIsModalVisible: (isVisible: boolean) => void;
-};
+import ArticlePreview from "./ArticlePreview";
+import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
+import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
+import { ActionType } from "@/constants/ActionType";
 
 export type MessageType = {
   role: string;
@@ -36,18 +36,29 @@ type InitializeMessageResponseType = {
   messages: MessageType[];
 };
 
-export default function AssistantChat({
-  setIsModalVisible,
-}: AssistantChatType) {
+export default function AssistantChat() {
   const scrollViewRef = useRef<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [blocked, setBlocked] = useState<boolean>(false);
-  const [threadId, setThreadId] = useState<string>("");
+  const [feedbackArticle, setFeedbackArticle] = useState<boolean>(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [chatClues, setChatClues] = useState<any>();
   const [text, setText] = useState<string>("");
   const [loadingClues, setLoadingClues] = useState<boolean>(false);
   const [assistantTyping, setAssistantTyping] = useState<boolean>(false);
+  const { setIsModalVisible } = useContext(AssistantModalContext);
+  const { setArticle, threadId, setThreadId, actionType } = useContext(
+    AssistantArticleContext
+  );
+
+  const onClosePressed = () => {
+    setIsModalVisible(false);
+
+    // reset context
+    setArticle({});
+    setThreadId("");
+  };
+
   const getChatClues = async () => {
     setBlocked(true);
     const body = JSON.stringify({
@@ -158,7 +169,12 @@ export default function AssistantChat({
   };
 
   useEffect(() => {
-    initiateAssistant();
+    if (!threadId) {
+      initiateAssistant();
+    } else {
+      setFeedbackArticle(true);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -176,10 +192,7 @@ export default function AssistantChat({
       <Spinner visible={loadingClues} color="#0029FF" size={"large"} />
       <View style={styles.header}>
         <Text style={styles.headerText}>Assistant Chat</Text>
-        <TouchableOpacity
-          style={styles.close}
-          onPress={() => setIsModalVisible(false)}
-        >
+        <TouchableOpacity style={styles.close} onPress={onClosePressed}>
           <AntDesign name="close" size={20} color="#0029FF" />
         </TouchableOpacity>
       </View>
@@ -204,6 +217,18 @@ export default function AssistantChat({
           }
         >
           <>
+            {feedbackArticle && (
+              <>
+                <ChatMessage
+                  key={nanoid()}
+                  role={"assistant"}
+                  message={`Hi! You seem to ${
+                    actionType === ActionType.DISLIKE ? "not " : ""
+                  }like this piece of reading. Tell me why!`}
+                />
+                <ArticlePreview />
+              </>
+            )}
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -212,13 +237,9 @@ export default function AssistantChat({
               />
             ))}
             {assistantTyping && <Text style={styles.typing}>Typing...</Text>}
+
             {chatClues && (
-              <ChatClues
-                clues={chatClues}
-                setClues={setChatClues}
-                threadId={threadId}
-                setIsModalVisible={setIsModalVisible}
-              />
+              <ChatClues clues={chatClues} setClues={setChatClues} />
             )}
           </>
         </ScrollView>
