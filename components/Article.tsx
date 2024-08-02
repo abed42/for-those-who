@@ -16,7 +16,7 @@ import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
 import { Categories } from "@/constants/Categories";
 import Action from "./Action";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { ActionType } from "@/constants/ActionType";
@@ -273,18 +273,37 @@ export default function Article({
       <Text numberOfLines={4}>
         {removeSpecialChars(article.Article.content)}
       </Text>
-      <View style={styles.actions}>
-        {article.Article.Source?.name ? (
-          <TouchableOpacity
-            style={styles.link}
-            onPress={handlePressButtonAsync}
-          >
-            <LinkSvg />
-            <Text style={styles.linkText}>{article.Article.Source?.name}</Text>
-          </TouchableOpacity>
-        ) : (
-          <View />
-        )}
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          alignContent: "center",
+        }}
+      >
+        <View style={styles.actions}>
+          {article.Article.Source?.name ? (
+            <TouchableOpacity
+              style={styles.link}
+              onPress={handlePressButtonAsync}
+            >
+              <LinkSvg />
+              <Text style={styles.linkText} ellipsizeMode="tail">
+                {article.Article.Source?.name}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View />
+          )}
+        </View>
+
+        <Text style={{ ...styles.info, color: "#979BB1", marginRight: 8 }}>
+          <Text style={{ color: "#D9D9D9" }}>•</Text>{" "}
+          <FontAwesome5 name="glasses" size={12} color="#979BB1" /> 5 min read
+        </Text>
+        <Text style={{ ...styles.info, color: "#979BB1" }}>
+          <Text style={{ color: "#D9D9D9" }}>•</Text> based on x clues
+        </Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity
@@ -342,7 +361,10 @@ export default function Article({
           {!feedbackLoading && (
             <View style={styles.feedbackActions}>
               {reasoning.Reasoning.map((reason, index) => (
-                <Animated.View entering={FadeInDown.delay((index + 1) * 150)} key={index}>
+                <Animated.View
+                  entering={FadeInDown.delay((index + 1) * 150)}
+                  key={index}
+                >
                   <Action action={async () => await sendMessage(reason)}>
                     {reason}
                   </Action>
@@ -397,8 +419,15 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "50%",
+    width: "42%",
     alignItems: "center",
+    alignContent: "center",
+  },
+  info: {
+    marginTop: 20,
+    display: "flex",
+    alignItems: "center",
+    alignContent: "center",
   },
   link: {
     width: "auto",
@@ -413,6 +442,7 @@ const styles = StyleSheet.create({
   linkText: {
     color: "#0029FF",
     fontWeight: "bold",
+    maxWidth: 120,
   },
   linkSvg: {
     //@ts-ignore
