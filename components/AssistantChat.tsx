@@ -130,7 +130,15 @@ export default function AssistantChat() {
           body,
         }
       );
-      setMessages(result);
+
+      // todo: change in backend
+      // remove the first item of the messages
+      // which is a json message that we don't want to show
+      if (feedbackArticle) {
+        setMessages(result.slice(1));
+      } else {
+        setMessages(result);
+      }
     } catch (err) {
       console.log(err);
     } finally {

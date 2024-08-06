@@ -143,7 +143,9 @@ const Feed = () => {
           }
           onEndReached={() => setOffset((offset: number) => offset + PER_PAGE)}
           onEndReachedThreshold={0.8}
-          ListFooterComponent={refreshing ? <> </> : <ActivityIndicator />}
+          ListFooterComponent={
+            refreshing ? <View></View> : <ActivityIndicator />
+          }
           renderItem={({ item }) => (
             <View>
               {selected.includes(item.Article.rating) && (
