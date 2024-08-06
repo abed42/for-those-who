@@ -27,6 +27,8 @@ type ArticleModel = {
   sourceId: string;
   imageUrl: string;
   Source: SourceModel;
+  rating: string;
+  relevantClues: string[];
 };
 
 type SourceModel = {
