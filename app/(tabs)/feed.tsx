@@ -12,7 +12,6 @@ import {
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
-  Switch,
 } from "react-native";
 import fetchWrapper from "@/utils/fetchWrapper";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -132,7 +131,6 @@ const Feed = () => {
                         <Text style={styles.filterText}>{filter.name}</Text>
                       </View>
                     ))}
-                    <Switch />
                   </View>
                 </Popover>
               </View>
