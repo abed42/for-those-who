@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Share,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import * as WebBrowser from "expo-web-browser";
@@ -16,11 +17,12 @@ import fetchWrapper from "@/utils/fetchWrapper";
 import { uniqueId } from "@/constants/UniqueId";
 import { Categories } from "@/constants/Categories";
 import Action from "./Action";
-import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { AssistantArticleContext } from "@/app/contexts/AssistantArticleContext";
 import { AssistantModalContext } from "@/app/contexts/AssistantModalContext";
 import { ActionType } from "@/constants/ActionType";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import Popover from "react-native-popover-view";
 export type MessageType = {
   role: string;
   message: string | any;
@@ -116,6 +118,24 @@ const FeedbackHeader: React.FC<FeedbackHeaderProps> = ({
       </TouchableOpacity>
     </View>
   );
+};
+const formatDate = (dateString: string): string => {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const inputDate = new Date(dateString);
+
+  const formattedToday = today.toISOString().split("T")[0];
+  const formattedYesterday = yesterday.toISOString().split("T")[0];
+
+  if (dateString === formattedToday) {
+    return "Today";
+  } else if (dateString === formattedYesterday) {
+    return "Yesterday";
+  } else {
+    return dateString;
+  }
 };
 
 export default function Article({
@@ -281,72 +301,115 @@ export default function Article({
           alignContent: "center",
         }}
       >
-        <View style={styles.actions}>
+        <View style={styles.actionContainer}>
           {article.Article.Source?.name ? (
             <TouchableOpacity
               style={styles.link}
               onPress={handlePressButtonAsync}
             >
               <LinkSvg />
-              <Text style={styles.linkText} ellipsizeMode="tail">
+              <Text
+                style={styles.linkText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {article.Article.Source?.name}
               </Text>
             </TouchableOpacity>
           ) : (
             <View />
           )}
-        </View>
 
-        <Text style={{ ...styles.info, color: "#979BB1", marginRight: 8 }}>
-          <Text style={{ color: "#D9D9D9" }}>•</Text>{" "}
-          <FontAwesome5 name="glasses" size={12} color="#979BB1" /> 5 min read
-        </Text>
-        <Text style={{ ...styles.info, color: "#979BB1" }}>
-          <Text style={{ color: "#D9D9D9" }}>•</Text> based on x clues
-        </Text>
+          <Text style={{ ...styles.info, color: "#979BB1", marginRight: 8 }}>
+            <Text style={{ color: "#D9D9D9" }}>•</Text>{" "}
+            {formatDate(article.Article.createdAt.slice(0, 10))}
+          </Text>
+        </View>
       </View>
-      <View style={styles.actions}>
-        <TouchableOpacity
-          onPress={handleLike}
-          style={[
-            styles.share,
-            localActionType === ActionType.LIKE && styles.likeBtnWrapper,
-          ]}
-        >
-          <LikeSvg
-            style={
-              localActionType === ActionType.LIKE
-                ? styles.likedBtn
-                : styles.actionSvg
+      <View style={styles.actionContainer}>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            onPress={handleLike}
+            style={[
+              styles.share,
+              localActionType === ActionType.LIKE && styles.likeBtnWrapper,
+            ]}
+          >
+            <LikeSvg
+              style={
+                localActionType === ActionType.LIKE
+                  ? styles.likedBtn
+                  : styles.actionSvg
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleDislike}
+            style={[
+              styles.share,
+              localActionType === ActionType.DISLIKE &&
+                styles.dislikeBtnWrapper,
+            ]}
+          >
+            <DislikeSvg
+              style={
+                localActionType === ActionType.DISLIKE
+                  ? styles.dislikedBtn
+                  : styles.actionSvg
+              }
+            />
+          </TouchableOpacity>
+          <View style={styles.verticalLine}></View>
+          <TouchableOpacity
+            disabled
+            onPress={handleBookmark}
+            style={styles.share}
+          >
+            <BookmarkSvg />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleShare} style={styles.share}>
+            <ArrowSvg />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.relevant}>
+          <Text style={{ ...styles.info, color: "#979BB1", marginRight: 8 }}>
+            {" "}
+            • {article.Article.rating}
+          </Text>
+          <Popover
+            from={
+              <Text
+                style={{
+                  ...styles.info,
+                  color: "#979BB1",
+                  marginRight: 8,
+                }}
+              >
+                {" "}
+                • Based on{" "}
+                <Text style={{ textDecorationLine: "underline" }}>
+                  {article.Article.relevantClues.length}{" "}
+                  {article.Article.relevantClues.length > 1 ? "clues" : "clue"}
+                </Text>
+              </Text>
             }
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleDislike}
-          style={[
-            styles.share,
-            localActionType === ActionType.DISLIKE && styles.dislikeBtnWrapper,
-          ]}
-        >
-          <DislikeSvg
-            style={
-              localActionType === ActionType.DISLIKE
-                ? styles.dislikedBtn
-                : styles.actionSvg
-            }
-          />
-        </TouchableOpacity>
-        <View style={styles.verticalLine}></View>
-        <TouchableOpacity
-          disabled
-          onPress={handleBookmark}
-          style={styles.share}
-        >
-          <BookmarkSvg />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleShare} style={styles.share}>
-          <ArrowSvg />
-        </TouchableOpacity>
+          >
+            <View>
+              <FlatList
+                data={article.Article.relevantClues}
+                renderItem={({ item }) => {
+                  return (
+                    <View style={{ marginBottom: 10 }}>
+                      <Text style={{ fontSize: 20, padding: 12 }}>
+                        {`\u2022 ${item}`}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
+            </View>
+          </Popover>
+        </View>
       </View>
       {showFeedbackReasoning && (
         <View style={styles.feedback}>
@@ -414,8 +477,15 @@ const styles = StyleSheet.create({
     height: 82,
     borderRadius: 16,
   },
+  actionContainer: {
+    marginTop: 16,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   actions: {
-    marginTop: 20,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -423,8 +493,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignContent: "center",
   },
+  relevant: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   info: {
-    marginTop: 20,
     display: "flex",
     alignItems: "center",
     alignContent: "center",
@@ -438,11 +513,12 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    maxWidth: "80%",
   },
   linkText: {
     color: "#0029FF",
     fontWeight: "bold",
-    maxWidth: 120,
+    maxWidth: "90%",
   },
   linkSvg: {
     //@ts-ignore
